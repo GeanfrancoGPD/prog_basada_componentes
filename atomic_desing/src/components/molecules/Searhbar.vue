@@ -20,7 +20,7 @@ const filteredItems = computed(() => {
   <input
     type="search"
     class="searchbar"
-    placeholder="Search..."
+    placeholder="🔍 Search..."
     list="items"
     v-model="searchQuery"
   />
@@ -31,16 +31,15 @@ const filteredItems = computed(() => {
 
 <style scoped>
 .searchbar {
-  border: var(--border-component);
+  background: #cfcccc37;
+  border: none;
   border-radius: var(--border-radius);
   padding: 10px 20px;
-  background-color: var(--bg);
   color: var(--text);
   outline: none;
 }
 
 .searchbar:hover {
-  border: var(--border-component-hover);
   color: var(--text);
 }
 </style>
