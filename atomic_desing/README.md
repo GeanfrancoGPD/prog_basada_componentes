@@ -1,5 +1,45 @@
-# Vue 3 + Vite
+# Atomic Design — Proyecto de ejemplo (Vue 3 + Vite)
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Este proyecto sigue la arquitectura de Atomic Design para organizar componentes reutilizables y escalables en **niveles**: átomos, moléculas, organismos, plantillas y páginas.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+Estructura principal de componentes incluidos en el proyecto:
+
+- Átomos:
+  - Button.vue
+  - Checkbox.vue
+  - Input.vue
+  - Label.vue
+
+- Moléculas:
+  - Card.vue
+  - Searhbar.vue
+
+- Organismos:
+  - Footer.vue
+  - Header.vue
+  - ProductGrid.vue
+
+- Páginas:
+  - home.vue
+
+- Templates:
+  - HomeProduct.vue
+
+Estado y notas de mejora:
+
+- `HomeProduct.vue`: necesita rediseño y mejoras de funcionalidad (mejorar maquetado y flujo de datos).
+- Faltan implementar: `sidebar` y `barProduct` (barra/controls del producto). Estos elementos deberían añadirse como organismos o templates según convenga.
+
+Cómo ejecutar el proyecto (rápido):
+
+1. Instalar dependencias:
+
+```bash
+npm install
+```
+
+2. Iniciar servidor de desarrollo:
+
+```bash
+npm run dev
+```
