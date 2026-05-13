@@ -7,6 +7,7 @@ import Checkbox from "./atoms/Checkbox.vue";
 import Searhbar from "./molecules/Searhbar.vue";
 import Header from "./organisms/Header.vue";
 import Footer from "./organisms/Footer.vue";
+import Card from "./molecules/Card.vue";
 </script>
 
 <template>
@@ -23,6 +24,7 @@ import Footer from "./organisms/Footer.vue";
   <h2>Moléculas</h2>
   <section>
     <Searhbar />
+    <Card category="Accesorio" name="Reloj" price="19.99" />
   </section>
-  <Footer />
+  <!-- <Footer /> -->
 </template>

@@ -1,5 +1,14 @@
+<script setup>
+defineProps({
+  name: {
+    type: String,
+    default: "Button",
+  },
+});
+</script>
+
 <template>
-    <button class="btn">Button</button>
+  <button class="btn">{{ name }}</button>
 </template>
 
 <style scoped>
@@ -22,7 +31,7 @@
 
 .btn:active {
   background: var(--bg-component-hover);
-  color: var(--color-component) ;
+  color: var(--color-component);
   border: var(--border-component-hover);
   transition: var(--transition);
   transform: translateY(2px);
