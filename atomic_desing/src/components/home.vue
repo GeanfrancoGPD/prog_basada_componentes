@@ -6,6 +6,7 @@ import Label from "./atoms/Label.vue";
 import Checkbox from "./atoms/Checkbox.vue";
 import Searhbar from "./molecules/Searhbar.vue";
 import Header from "./organisms/Header.vue";
+import Footer from "./organisms/Footer.vue";
 </script>
 
 <template>
@@ -23,4 +24,5 @@ import Header from "./organisms/Header.vue";
   <section>
     <Searhbar />
   </section>
+  <Footer />
 </template>
