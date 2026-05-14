@@ -4,7 +4,7 @@ import { computed } from 'vue';
 const props = defineProps({
   modelValue: {
     type: [Number, String],
-    default: 500
+    default: 0,
   },
   min: {
     type: [Number, String],
@@ -28,13 +28,26 @@ const handleInput = (event) => {
 
 // Calculamos la posición del bubble basándonos en el porcentaje
 const bubblePosition = computed(() => {
-  const val = Number(props.modelValue);
-  const min = Number(props.min);
-  const max = Number(props.max);
-  const percentage = ((val - min) / (max - min)) * 100;
+  const val = Number(props.modelValue) || 0;
+  const min = Number(props.min) || 0;
+  const max = Number(props.max) || 0;
+  
+  const range = max - min;
+  
+  // Evitar división por cero
+  let fraction = range === 0 ? 0 : (val - min) / range;
+  
+  // Aseguramos que fraction sea un número válido entre 0 y 1
+  if (Number.isNaN(fraction)) {
+    fraction = 0;
+  } else {
+    fraction = Math.max(0, Math.min(1, fraction));
+  }
+  
+  const percentage = fraction * 100;
   
   // Ajuste fino para que la burbuja no se desborde en los bordes
-  return `calc(${percentage}% + (${8 - percentage * 0.15}px))`;
+  return `calc(${percentage}% + (${8 - percentage * 0.16}px))`;
 });
 </script>
 

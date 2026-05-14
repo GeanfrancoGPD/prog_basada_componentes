@@ -5,7 +5,7 @@ import RangeSlider from '../atoms/RangeSlider.vue';
 import Button from '../atoms/Button.vue';
 import Label from '../atoms/Label.vue';
 
-const defaultPrice = ref(500);
+const defaultPrice = ref(0);
 </script>
 
 <template>
