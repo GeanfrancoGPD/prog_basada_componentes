@@ -87,4 +87,11 @@ const handleSortChange = (newValue) => {
 strong {
   color: var(--bg-component-hover);
 }
+
+@media (max-width: 768px) {
+  .product-toolbar {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
 </style>
