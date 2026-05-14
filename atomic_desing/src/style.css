@@ -40,11 +40,15 @@ section {
 }
 
 a {
+  color: var(--text, #333);
   text-decoration: none;
-  color: var(--text-a);
+  transition:
+    color 0.3s ease,
+    transform 0.3s ease;
+  display: inline-block; /* Requerido para el transform */
 }
 
 a:hover {
-  border-bottom: #007bff 3px solid;
-  padding-bottom: 7px;
+  color: var(--bg-component-hover, #0099ff);
+  transform: translateY(-2px);
 }

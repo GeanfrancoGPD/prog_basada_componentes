@@ -18,7 +18,5 @@
     height: 20px;
     cursor: pointer;
     border: var(--border-component-hover);
-    transition: var(--transition);
-    transform: translateY(-4px);
 }
 </style>
