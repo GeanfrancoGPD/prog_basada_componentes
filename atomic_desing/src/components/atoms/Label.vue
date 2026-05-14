@@ -1,6 +1,6 @@
 <script></script>
 <template>
-  <label class="label">Label</label>
+  <label class="label"><slot>Label</slot></label>
 </template>
 
 <style scoped>
