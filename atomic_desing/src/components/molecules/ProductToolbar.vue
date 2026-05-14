@@ -55,20 +55,33 @@ const handleSortChange = (newValue) => {
 
 <style scoped>
 .product-toolbar {
+  width: 90%;
+  margin: 0 auto;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
   align-items: center;
   padding: 10px 0;
   margin-bottom: 25px;
   border-bottom: 1px solid var(--border-component);
+  background: #d2cccc71;
+  border-radius: 10px;
   color: var(--text);
   font-size: 14px;
+}
+
+.product-toolbar * {
+    background-color: transparent;
 }
 
 .toolbar-actions {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.toolbar-actions select {
+  background-color: #fff;
+  color: var(--text);
 }
 
 strong {
