@@ -1,8 +1,11 @@
 <script setup>
+import { ref } from 'vue';
 import FilterOption from '../molecules/FilterOption.vue';
 import RangeSlider from '../atoms/RangeSlider.vue';
 import Button from '../atoms/Button.vue';
 import Label from '../atoms/Label.vue';
+
+const defaultPrice = ref(500);
 </script>
 
 <template>
@@ -17,10 +20,10 @@ import Label from '../atoms/Label.vue';
 
     <div class="sidebar-section">
       <h3>Price range</h3>
-      <RangeSlider min="0" max="1000" step="50" />
+      <RangeSlider v-model="defaultPrice" min="0" max="100" step="10" />
       <div class="price-labels">
         <Label>$0</Label>
-        <Label>$1000</Label>
+        <Label>$100</Label>
       </div>
     </div>
 
