@@ -1,0 +1,35 @@
+{
+  "dependencies": {
+    "express": "^4.22.2",
+    "slicejs-web-framework": "3.2.2"
+  },
+  "scripts": {
+    "dev": "slice dev",
+    "start": "slice start",
+    "component:create": "slice component create",
+    "component:list": "slice component list",
+    "component:delete": "slice component delete",
+    "get": "slice get",
+    "browse": "slice browse",
+    "sync": "slice sync",
+    "slice:version": "slice version",
+    "slice:update": "slice update",
+    "slice:init": "slice init",
+    "slice:start": "slice start",
+    "slice:dev": "slice dev",
+    "slice:create": "slice component create",
+    "slice:list": "slice component list",
+    "slice:delete": "slice component delete",
+    "slice:get": "slice get",
+    "slice:browse": "slice browse",
+    "slice:sync": "slice sync",
+    "run": "slice dev"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "slicejs-cli": "^3.1.0"
+  }
+}
