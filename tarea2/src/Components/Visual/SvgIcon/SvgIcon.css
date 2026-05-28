@@ -1,0 +1,27 @@
+.svg-icon-frame {
+  width: var(--svg-icon-size);
+  height: var(--svg-icon-size);
+  border-radius: 16px;
+  background: var(--svg-icon-background);
+  color: var(--svg-icon-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(var(--primary-color-rgb), 0.12);
+  box-shadow: 0 6px 18px rgba(var(--primary-color-rgb), 0.08);
+  overflow: hidden;
+}
+
+.svg-icon-slot {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.svg-icon-slot svg {
+  width: 60%;
+  height: 60%;
+  display: block;
+}
