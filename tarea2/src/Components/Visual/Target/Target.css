@@ -1,1 +1,93 @@
-/* Styles for target component */
+/* Base card */
+
+.target {
+  width: 90%;
+  border-radius: 18px;
+  border: 1px solid var(--disabled-color);
+  background: var(--primary-background-color);
+  box-shadow: 0 6px 24px rgba(var(--primary-color-rgb), 0.08);
+  padding: 1rem;
+  box-sizing: border-box;
+  margin: auto;
+}
+
+/* Shared */
+
+.target-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--font-primary-color);
+}
+
+.target-value {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--font-primary-color);
+}
+
+.target-text {
+  margin: 0;
+  color: var(--font-secondary-color);
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.target-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+
+  background: rgba(var(--primary-color-rgb), 0.12);
+
+  color: var(--primary-color);
+
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.target-icon-wrap {
+  width: fit-content;
+}
+
+/* ========================= */
+/* STATS VARIANT */
+/* ========================= */
+
+.target-stats-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.target-stats-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.target-stats-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+/* ========================= */
+/* INFO VARIANT */
+/* ========================= */
+
+.target-info-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.target-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
