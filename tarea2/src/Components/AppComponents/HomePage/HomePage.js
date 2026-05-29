@@ -10,7 +10,8 @@ export default class HomePage extends HTMLElement {
     await Promise.all([
       this._buildSidebar(),
       this._buildHeader(),
-      this._buildCard(),
+      this._buildDashboardPanels(),
+      this._buildDashboardPanels2(),
     ]);
   }
 
@@ -30,15 +31,160 @@ export default class HomePage extends HTMLElement {
     }
   }
 
-  async _buildCard() {
-    const card = await slice.build("Card", {
-      title: "Welcome to fintraack",
-      content: "Your personal finance dashboard built with Slice.js",
+  async _buildTarget() {
+    const target = await slice.build("Target", {
+      context: [
+        { item: "title", text: "This is a title" },
+        { item: "label", text: "This is a label" },
+      ],
     });
-    const container = this.querySelector(".card-container");
+    const container = this.querySelector(".target-container");
     if (container) {
-      container.appendChild(card);
+      container.appendChild(target);
     }
+  }
+
+  async _buildDashboardPanels() {
+    const panelsContainer = this.querySelector(".dashboard-panels");
+
+    if (!panelsContainer) return;
+
+    const monthlyStatsSchema = [
+      {
+        type: "icon",
+        svg: `
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M4 19V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M4 19H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7 15V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M11 15V9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M15 15V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M19 15V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        `,
+      },
+      { type: "title", text: "Gastos mensuales" },
+      { type: "value", text: "$5,120.30" },
+      { type: "badge", text: "-4.2%" },
+    ];
+
+    const budgetInfoSchema = [
+      {
+        type: "icon",
+        svg: `
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 8.5V13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 16.5H12.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M10.3 4.5L2.8 18a1.8 1.8 0 0 0 1.56 2.7h15.28A1.8 1.8 0 0 0 21.2 18L13.7 4.5a1.9 1.9 0 0 0-3.4 0Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        `,
+      },
+      { type: "title", text: "Recomendación" },
+      {
+        type: "text",
+        text: "Tus gastos en ocio subieron esta semana. Revisa categorías con más variación.",
+      },
+    ];
+
+    const [statsCard, infoCard] = await Promise.all([
+      slice.build("Target", {
+        variant: "stats",
+        context: monthlyStatsSchema,
+      }),
+      slice.build("Target", {
+        variant: "info",
+        context: budgetInfoSchema,
+      }),
+    ]);
+
+    panelsContainer.appendChild(statsCard);
+    panelsContainer.appendChild(infoCard);
+  }
+
+  async _buildDashboardPanels2() {
+    const panelsContainer = this.querySelector(".dashboard-panels-2");
+    const one = document.createElement("div");
+    one.appendChild(
+      await slice.build("Target", {
+        variant: "stats",
+        context: [
+          {
+            type: "icon",
+            svg: `
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M4 19V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M4 19H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 15V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M11 15V9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M15 15V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M19 15V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          `,
+          },
+          { type: "title", text: "Gastos mensuales" },
+          { type: "value", text: "$5,120.30" },
+          { type: "badge", text: "-4.2%" },
+        ],
+      }),
+    );
+
+    const two = document.createElement("div");
+    two.appendChild(
+      await slice.build("Target", {
+        variant: "stats",
+        context: [
+          {
+            type: "icon",
+            svg: `
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M4 19V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M4 19H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 15V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M11 15V9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M15 15V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M19 15V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          `,
+          },
+          { type: "title", text: "Ingresos mensuales" },
+          { type: "value", text: "$8,450.60" },
+          { type: "badge", text: "+2.8%" },
+        ],
+      }),
+    );
+
+    const three = document.createElement("div");
+    three.appendChild(
+      await slice.build("Target", {
+        variant: "stats",
+        context: [
+          {
+            type: "icon",
+            svg: `
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M4 19V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M4 19H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 15V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M11 15V9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M15 15V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M19 15V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          `,
+          },
+          { type: "title", text: "Ingresos mensuales" },
+          { type: "value", text: "$8,450.60" },
+          { type: "badge", text: "+2.8%" },
+        ],
+      }),
+    );
+
+    if (!panelsContainer) return;
+    const grid = await slice.build("Grid", {
+      columns: "3",
+      arrow: "1",
+      items: [one, two, three],
+    });
+    panelsContainer.appendChild(grid);
   }
 
   async _buildHeader() {
@@ -93,150 +239,6 @@ export default class HomePage extends HTMLElement {
     cta.appendChild(docsBtn);
     cta.appendChild(componentsBtn);
   }
-
-  //   async _buildFeatures() {
-  //     const features = [
-  //       {
-  //         title: "Component-Based",
-  //         description:
-  //           "Build your app using modular, reusable components following web standards.",
-  //       },
-  //       {
-  //         title: "Themeable",
-  //         description:
-  //           "Swap themes at runtime. Ships with Slice, Light, Dark and more.",
-  //       },
-  //       {
-  //         title: "Lightweight",
-  //         description:
-  //           "No heavy runtime. Just vanilla JavaScript and web standards.",
-  //       },
-  //       {
-  //         title: "Built-in Router",
-  //         description:
-  //           "Client-side routing with MultiRoute — no extra libraries needed.",
-  //       },
-  //       {
-  //         title: "CLI Tools",
-  //         description:
-  //           "Scaffold projects, create components and build bundles from the command line.",
-  //       },
-  //       {
-  //         title: "Services",
-  //         description:
-  //           "Built-in FetchManager, LocalStorage and IndexedDB integrations.",
-  //       },
-  //     ];
-
-  //     const grid = this.querySelector(".feature-grid");
-  //     for (const { title, description } of features) {
-  //       const item = document.createElement("div");
-  //       item.classList.add("feature-item");
-
-  //       const h3 = document.createElement("h3");
-  //       h3.classList.add("feature-title");
-  //       h3.textContent = title;
-
-  //       const p = document.createElement("p");
-  //       p.classList.add("feature-description");
-  //       p.textContent = description;
-
-  //       item.appendChild(h3);
-  //       item.appendChild(p);
-  //       grid.appendChild(item);
-  //     }
-  //   }
-
-  //   async _buildShowcase() {
-  //     const grid = this.querySelector(".showcase-grid");
-
-  //     // Helper: wrap built components in a labeled card and append to grid
-  //     const addCard = (label, ...components) => {
-  //       const card = document.createElement("div");
-  //       card.classList.add("comp-card");
-
-  //       const labelEl = document.createElement("p");
-  //       labelEl.classList.add("comp-label");
-  //       labelEl.textContent = label;
-
-  //       const demo = document.createElement("div");
-  //       demo.classList.add("comp-demo");
-  //       components.forEach((c) => demo.appendChild(c));
-
-  //       card.appendChild(labelEl);
-  //       card.appendChild(demo);
-  //       grid.appendChild(card);
-  //     };
-
-  //     // Button — primary + secondary variants
-  //     const [btnPrimary, btnSecondary] = await Promise.all([
-  //       slice.build("Button", {
-  //         value: "Primary",
-  //         onClickCallback: () => {},
-  //         customColor: {
-  //           button: "var(--primary-color)",
-  //           label: "var(--primary-color-contrast)",
-  //         },
-  //       }),
-  //       slice.build("Button", {
-  //         value: "Secondary",
-  //         onClickCallback: () => {},
-  //         customColor: {
-  //           button: "var(--secondary-background-color)",
-  //           label: "var(--primary-color)",
-  //         },
-  //       }),
-  //     ]);
-  //     addCard("Button", btnPrimary, btnSecondary);
-
-  //     // Input
-  //     const input = await slice.build("Input", {
-  //       placeholder: "Type something...",
-  //       type: "text",
-  //     });
-  //     addCard("Input", input);
-
-  //     // Switch
-  //     const sw = await slice.build("Switch", {
-  //       label: "Toggle me",
-  //       checked: true,
-  //     });
-  //     addCard("Switch", sw);
-
-  //     // Select — theme chooser
-  //     const themeOptions = [
-  //       { name: "Slice Theme" },
-  //       { name: "Light Theme" },
-  //       { name: "Dark Theme" },
-  //       { name: "Purple Theme" },
-  //     ];
-  //     const select = await slice.build("Select", {
-  //       label: "Pick a theme",
-  //       options: themeOptions,
-  //       visibleProp: "name",
-  //       onOptionSelect: async (option) => {
-  //         if (!option) return;
-  //         const themeName = option.name.replace(" Theme", "");
-  //         await slice.setTheme(themeName);
-  //       },
-  //     });
-  //     addCard("Select", select);
-
-  //     // Loading — triggered by a demo button (Loading appends to document.body)
-  //     const loading = await slice.build("Loading", {});
-  //     const demoBtn = await slice.build("Button", {
-  //       value: "Demo Loading",
-  //       onClickCallback: () => {
-  //         loading.start();
-  //         setTimeout(() => loading.stop(), 1500);
-  //       },
-  //       customColor: {
-  //         button: "var(--primary-color)",
-  //         label: "var(--primary-color-contrast)",
-  //       },
-  //     });
-  //     addCard("Loading", demoBtn);
-  //   }
 }
 
 customElements.define("slice-home-page", HomePage);

@@ -30,6 +30,14 @@ slice-home-page {
   width: 100%;
 }
 
+.dashboard-panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  align-items: start;
+  margin-bottom: 1.5rem;
+}
+
 .card-container {
   height: 200px;
   width: 300px;
