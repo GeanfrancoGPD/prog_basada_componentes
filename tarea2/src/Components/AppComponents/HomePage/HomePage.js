@@ -12,6 +12,8 @@ export default class HomePage extends HTMLElement {
       this._buildHeader(),
       this._buildDashboardPanels(),
       this._buildDashboardPanels2(),
+      this._buildGraphics(),
+      this._buildSuggestions(),
     ]);
   }
 
@@ -68,37 +70,29 @@ export default class HomePage extends HTMLElement {
       { type: "badge", text: "-4.2%" },
     ];
 
-    const budgetInfoSchema = [
-      {
-        type: "icon",
-        svg: `
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M12 8.5V13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M12 16.5H12.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-            <path d="M10.3 4.5L2.8 18a1.8 1.8 0 0 0 1.56 2.7h15.28A1.8 1.8 0 0 0 21.2 18L13.7 4.5a1.9 1.9 0 0 0-3.4 0Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-          </svg>
-        `,
-      },
-      { type: "title", text: "Recomendación" },
-      {
-        type: "text",
-        text: "Tus gastos en ocio subieron esta semana. Revisa categorías con más variación.",
-      },
-    ];
+    const divDonut = document.createElement("div");
 
-    const [statsCard, infoCard] = await Promise.all([
-      slice.build("Target", {
-        variant: "stats",
-        context: monthlyStatsSchema,
+    divDonut.appendChild(
+      await slice.build("Graphics", {
+        type: "donut",
+        height: 220,
+        width: 80,
+        title: "Distribución por categorías",
+        series: [
+          { name: "Ocio", data: 35 },
+          { name: "Transporte", data: 25 },
+          { name: "Comida", data: 20 },
+          { name: "Otros", data: 20 },
+        ],
       }),
-      slice.build("Target", {
-        variant: "info",
-        context: budgetInfoSchema,
-      }),
-    ]);
+    );
 
+    const statsCard = await slice.build("Target", {
+      variant: "stats",
+      context: monthlyStatsSchema,
+    });
     panelsContainer.appendChild(statsCard);
-    panelsContainer.appendChild(infoCard);
+    panelsContainer.appendChild(divDonut);
   }
 
   async _buildDashboardPanels2() {
@@ -187,6 +181,32 @@ export default class HomePage extends HTMLElement {
     panelsContainer.appendChild(grid);
   }
 
+  async _buildGraphics() {
+    const container = this.querySelector(".graphics-container");
+
+    if (!container) return;
+
+    const graphics = await slice.build("Graphics", {
+      type: "area",
+      height: 440,
+      width: "100%",
+      title: "Evolución de gastos e ingresos",
+      categories: ["Ene", "Feb", "Mar", "Abr", "May", "Jun"],
+      series: [
+        {
+          name: "Gastos",
+          data: [1200, 1750, 1540, 1980, 2200, 2410],
+        },
+        {
+          name: "Ingresos",
+          data: [1600, 1900, 2050, 2300, 2500, 2750],
+        },
+      ],
+    });
+
+    container.appendChild(graphics);
+  }
+
   async _buildHeader() {
     const searchBar = await slice.build("SearchBar", {});
     const addButton = await slice.build("Button", {
@@ -238,6 +258,51 @@ export default class HomePage extends HTMLElement {
     const cta = this.querySelector(".hero-cta");
     cta.appendChild(docsBtn);
     cta.appendChild(componentsBtn);
+  }
+
+  async _buildSuggestions() {
+    const container = this.querySelector(".suggestions-container");
+
+    if (!container) return;
+
+    const suggestions = [
+      {
+        title: "Recomendación 1",
+        text: "Tus gastos en ocio subieron esta semana. Revisa categorías con más variación.",
+      },
+      {
+        title: "Recomendación 2",
+        text: "Hay un pico en transporte. Puedes comparar esta semana con el promedio mensual.",
+      },
+      {
+        title: "Recomendación 3",
+        text: "Tu saldo disponible es estable, pero conviene vigilar compras pequeñas repetidas.",
+      },
+    ];
+
+    const cards = await Promise.all(
+      suggestions.map((suggestion) =>
+        slice.build("Target", {
+          variant: "info",
+          context: [
+            {
+              type: "icon",
+              svg: `
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M12 8.5V13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 16.5H12.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M10.3 4.5L2.8 18a1.8 1.8 0 0 0 1.56 2.7h15.28A1.8 1.8 0 0 0 21.2 18L13.7 4.5a1.9 1.9 0 0 0-3.4 0Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+              `,
+            },
+            { type: "title", text: suggestion.title },
+            { type: "text", text: suggestion.text },
+          ],
+        }),
+      ),
+    );
+
+    cards.forEach((card) => container.appendChild(card));
   }
 }
 
