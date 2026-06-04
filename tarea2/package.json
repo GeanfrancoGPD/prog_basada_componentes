@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "apexcharts": "^5.13.0",
     "express": "^4.22.2",
     "slicejs-web-framework": "3.2.2"
   },

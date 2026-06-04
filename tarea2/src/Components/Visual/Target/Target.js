@@ -51,10 +51,6 @@ export default class Target extends HTMLElement {
     }
   }
 
-  /* ========================= */
-  /* STATS LAYOUT */
-  /* ========================= */
-
   async _renderStats() {
     const layout = document.createElement("div");
     layout.classList.add("target-stats-layout");
@@ -82,10 +78,6 @@ export default class Target extends HTMLElement {
 
     this.$content.appendChild(layout);
   }
-
-  /* ========================= */
-  /* INFO LAYOUT */
-  /* ========================= */
 
   async _renderInfo() {
     const layout = document.createElement("div");
@@ -115,10 +107,6 @@ export default class Target extends HTMLElement {
     this.$content.appendChild(layout);
   }
 
-  /* ========================= */
-  /* ROW FACTORY */
-  /* ========================= */
-
   async _createRow(item) {
     if (!item) return null;
 
@@ -142,10 +130,6 @@ export default class Target extends HTMLElement {
         return this._createText(item);
     }
   }
-
-  /* ========================= */
-  /* ELEMENTS */
-  /* ========================= */
 
   async _createIcon(item) {
     const wrapper = document.createElement("div");

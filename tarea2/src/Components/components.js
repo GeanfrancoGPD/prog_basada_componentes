@@ -1,6 +1,7 @@
 const components = {
   "HomePage": "AppComponents",
   "Playground": "AppComponents",
+  "Transaction": "AppComponents",
   "Button": "Visual",
   "Card": "Visual",
   "Checkbox": "Visual",
@@ -8,6 +9,7 @@ const components = {
   "Details": "Visual",
   "DropDown": "Visual",
   "ElementCarrousel": "Visual",
+  "Graphics": "Visual",
   "Grid": "Visual",
   "Header": "Visual",
   "Icon": "Visual",
@@ -22,6 +24,7 @@ const components = {
   "SearchBar": "Visual",
   "Select": "Visual",
   "Sidebar": "Visual",
+  "SvgIcon": "Visual",
   "Switch": "Visual",
   "Table": "Visual",
   "Tabs": "Visual",
@@ -29,6 +32,7 @@ const components = {
   "ThemeSelector": "Visual",
   "TreeItem": "Visual",
   "TreeView": "Visual",
+  "ApexChartServices": "Service",
   "FetchManager": "Service",
   "IndexedDbManager": "Service",
   "LocalStorageManager": "Service"
