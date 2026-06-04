@@ -1,5 +1,8 @@
 /* Styles for graphics component */
 .graphics {
-  flex: 1;
-  gap: 0.5px;
+  width: 100%;
+}
+
+.graphics-context {
+  width: 100%;
 }
