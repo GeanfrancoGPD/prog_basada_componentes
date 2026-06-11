@@ -11,6 +11,8 @@
   gap: 1rem;
   position: sticky;
   top: 0;
+  font-family: var(--font-family);
+  color: var(--font-primary-color);
 }
 
 .sidebar-label {
