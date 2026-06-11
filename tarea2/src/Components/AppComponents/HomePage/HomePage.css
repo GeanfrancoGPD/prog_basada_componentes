@@ -9,7 +9,7 @@ slice-home-page {
 .home-page-container {
   display: flex;
   align-items: flex-start;
-  min-height: 100vh;
+  min-height: 100%;
   width: 100%;
 }
 

@@ -1,59 +1,52 @@
+const SVG_CACHE = {};
+
 export default class SvgIcon extends HTMLElement {
   static props = {
-    svg: {
-      type: "string",
-      default: "",
-      required: false,
-    },
-    size: {
-      type: "string",
-      default: "56px",
-      required: false,
-    },
-    background: {
-      type: "string",
-      default: "rgba(var(--primary-color-rgb), 0.1)",
-      required: false,
-    },
-    color: {
-      type: "string",
-      default: "var(--primary-color)",
-      required: false,
-    },
+    nombre: { type: "string", default: "default" },
+    size: { type: "string", default: "56px" },
+    color: { type: "string", default: "var(--primary-color)" },
   };
 
   constructor(props) {
     super();
     slice.attachTemplate(this);
-    this.$frame = this.querySelector(".svg-icon-frame");
+
     this.$slot = this.querySelector(".svg-icon-slot");
+
     slice.controller.setComponentProps(this, props);
   }
 
-  init() {
-    this.render();
+  async init() {
+    await this.render();
+  }
+  async update() {
+    await this.render();
   }
 
-  update() {
-    this.render();
-  }
+  async render() {
+    if (!this.$slot) return;
 
-  render() {
-    if (this.$frame) {
-      this.$frame.style.setProperty("--svg-icon-size", this.size || "56px");
-      this.$frame.style.setProperty(
-        "--svg-icon-background",
-        this.background || "rgba(var(--primary-color-rgb), 0.1)",
-      );
-      this.$frame.style.setProperty(
-        "--svg-icon-color",
-        this.color || "var(--primary-color)",
-      );
+    this.style.setProperty("--svg-icon-size", this.size);
+    this.style.setProperty("--svg-icon-color", this.color);
+
+    let svg = SVG_CACHE[this.nombre];
+
+    if (!svg) {
+      try {
+        //  Ruta absoluta desde la raíz del servidor
+        const response = await fetch(`/assets/svgs/${this.nombre}.svg`);
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        svg = await response.text();
+        SVG_CACHE[this.nombre] = svg;
+      } catch (error) {
+        console.warn(`SVG "${this.nombre}" no encontrado`, error);
+        return;
+      }
     }
 
-    if (this.$slot) {
-      this.$slot.innerHTML = this.svg || "";
-    }
+    this.$slot.innerHTML = svg;
   }
 }
 

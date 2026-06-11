@@ -137,13 +137,13 @@ export default class Target extends HTMLElement {
     wrapper.classList.add("target-icon-wrap");
 
     const icon = await slice.build("SvgIcon", {
-      svg: item.svg || "",
+      nombre: item.nombre || "bar_grafic",
 
-      size: item.size || "52px",
+      size: item.size || "56px",
 
-      background: item.background || undefined,
+      background: item.background,
 
-      color: item.color || undefined,
+      color: item.color,
     });
 
     wrapper.appendChild(icon);

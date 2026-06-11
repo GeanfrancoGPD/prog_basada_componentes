@@ -22,7 +22,10 @@ export default class HomePage extends HTMLElement {
       title: "Dashboard fintraack",
       items: [
         { text: "Dashboard", path: "/" },
-        { text: "transactions", path: "/Playground" },
+        { text: "Transaction", path: "/Transaction" },
+        { text: "Statistics", path: "/Statistics" },
+        { text: "Goals", path: "/Goals" },
+        { text: "Settings", path: "/Settings" },
       ],
     });
 
@@ -54,16 +57,7 @@ export default class HomePage extends HTMLElement {
     const monthlyStatsSchema = [
       {
         type: "icon",
-        svg: `
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M4 19V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M4 19H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M7 15V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M11 15V9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M15 15V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M19 15V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        `,
+        nombre: "bar_grafic",
       },
       { type: "title", text: "Gastos mensuales" },
       { type: "value", text: "$5,120.30" },
@@ -104,16 +98,7 @@ export default class HomePage extends HTMLElement {
         context: [
           {
             type: "icon",
-            svg: `
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M4 19V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M4 19H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M7 15V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M11 15V9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M15 15V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M19 15V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          `,
+            nombre: "bar_grafic",
           },
           { type: "title", text: "Gastos mensuales" },
           { type: "value", text: "$5,120.30" },
@@ -129,16 +114,7 @@ export default class HomePage extends HTMLElement {
         context: [
           {
             type: "icon",
-            svg: `
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M4 19V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M4 19H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M7 15V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M11 15V9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M15 15V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M19 15V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          `,
+            nombre: "bar_grafic",
           },
           { type: "title", text: "Ingresos mensuales" },
           { type: "value", text: "$8,450.60" },
@@ -154,16 +130,7 @@ export default class HomePage extends HTMLElement {
         context: [
           {
             type: "icon",
-            svg: `
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M4 19V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M4 19H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M7 15V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M11 15V9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M15 15V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M19 15V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          `,
+            nombre: "bar_grafic",
           },
           { type: "title", text: "Ingresos mensuales" },
           { type: "value", text: "$8,450.60" },
@@ -211,6 +178,7 @@ export default class HomePage extends HTMLElement {
     const searchBar = await slice.build("SearchBar", {});
     const addButton = await slice.build("Button", {
       value: "agregar transaction",
+      onClickCallback: await slice.setTheme("Dark"),
     });
 
     const header = await slice.build("Header", {
@@ -287,13 +255,7 @@ export default class HomePage extends HTMLElement {
           context: [
             {
               type: "icon",
-              svg: `
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <path d="M12 8.5V13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M12 16.5H12.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                  <path d="M10.3 4.5L2.8 18a1.8 1.8 0 0 0 1.56 2.7h15.28A1.8 1.8 0 0 0 21.2 18L13.7 4.5a1.9 1.9 0 0 0-3.4 0Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                </svg>
-              `,
+              nombre: "bar_grafic",
             },
             { type: "title", text: suggestion.title },
             { type: "text", text: suggestion.text },
