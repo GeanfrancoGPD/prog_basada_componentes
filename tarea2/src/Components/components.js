@@ -1,6 +1,9 @@
 const components = {
+  "Goals": "AppComponents",
   "HomePage": "AppComponents",
   "Playground": "AppComponents",
+  "Settings": "AppComponents",
+  "Statistics": "AppComponents",
   "Transaction": "AppComponents",
   "Button": "Visual",
   "Card": "Visual",
@@ -29,6 +32,7 @@ const components = {
   "Table": "Visual",
   "Tabs": "Visual",
   "Target": "Visual",
+  "TargetGoals": "Visual",
   "ThemeSelector": "Visual",
   "TreeItem": "Visual",
   "TreeView": "Visual",

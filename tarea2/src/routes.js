@@ -14,6 +14,18 @@ const routes = [
     path: "/Transaction",
     component: "Transaction",
   },
+  {
+    path: "/Statistics",
+    component: "Statistics",
+  },
+  {
+    path: "/Goals",
+    component: "Goals",
+  },
+  {
+    path: "/Settings",
+    component: "Settings",
+  },
 ];
 
 export default routes;
