@@ -1,0 +1,193 @@
+slice-goals {
+  display: block;
+  width: 100%;
+  font-family: var(--font-family);
+  color: var(--font-primary-color);
+}
+
+.goals {
+  display: flex;
+  align-items: flex-start;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.Sidebar-container {
+  flex: 0 0 auto;
+}
+
+.context {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+  padding: 15px;
+}
+
+.Header-container,
+.page-content {
+  width: 100%;
+}
+
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.goals-Metrics {
+  width: 100%;
+}
+
+.goals-list {
+  width: 100%;
+}
+
+.context-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info h1 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--font-primary-color);
+}
+
+.info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--font-secondary-color);
+}
+
+.tg-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: 0.2s ease;
+  z-index: 999;
+}
+
+.tg-modal-backdrop--open {
+  opacity: 1;
+}
+
+.tg-modal {
+  width: 420px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  transform: translateY(10px);
+  transition: 0.2s ease;
+  overflow: hidden;
+}
+
+.tg-modal-backdrop--open .tg-modal {
+  transform: translateY(0);
+}
+
+.tg-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 18px;
+  border-bottom: 1px solid #eee;
+}
+
+.tg-modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.tg-modal-close {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.tg-form-body {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tg-field label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.tg-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  outline: none;
+}
+
+.tg-input:focus {
+  border-color: #4f46e5;
+}
+
+.tg-row {
+  display: flex;
+  gap: 10px;
+}
+
+.tg-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 18px;
+  border-top: 1px solid #eee;
+}
+
+.tg-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.tg-btn--cancel {
+  background: #f3f4f6;
+}
+
+.tg-btn--save {
+  background: #4f46e5;
+  color: white;
+}
+
+.tg-goal-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tg-goal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.tg-btn--edit {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+
+.tg-btn--delete {
+  background: #fee2e2;
+  color: #dc2626;
+}
