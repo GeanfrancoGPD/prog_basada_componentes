@@ -22,6 +22,7 @@ slice-statistics {
 .context {
   flex: 1;
   min-width: 0;
+  padding: 15px;
 }
 
 .Header-container,

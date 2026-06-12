@@ -141,8 +141,6 @@ export default class Target extends HTMLElement {
 
       size: item.size || "56px",
 
-      background: item.background,
-
       color: item.color,
     });
 
