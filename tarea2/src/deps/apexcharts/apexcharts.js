@@ -1,3 +1,4 @@
+// @ts-nocheck
 (function(global2, factory) {
   typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : (global2 = typeof globalThis !== "undefined" ? globalThis : global2 || self, global2.ApexCharts = factory());
 })(this, (function() {

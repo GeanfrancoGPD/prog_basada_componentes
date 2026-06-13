@@ -1,3 +1,4 @@
+// @ts-nocheck
 /*!
  * ApexCharts v5.13.0
  * (c) 2018-2026 ApexCharts
