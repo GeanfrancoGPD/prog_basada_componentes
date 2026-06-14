@@ -11,7 +11,6 @@ export default class Goals extends HTMLElement {
     super();
     slice.attachTemplate(this);
 
-    // ✅ Un solo array unificado
     this.goals = [
       {
         title: "New Tesla Model 3",
@@ -27,6 +26,18 @@ export default class Goals extends HTMLElement {
   }
 
   async init() {
+    this.events = slice.events.bind(this);
+
+    this.events.subscribe("goal:save", ({ data, index }) => {
+      if (index !== null) {
+        this.goals[index] = data;
+      } else {
+        this.goals.push(data);
+      }
+
+      this._buildGoalsList();
+    });
+
     await Promise.all([
       this._buildButton(),
       this._buildSidebar(),
@@ -64,7 +75,7 @@ export default class Goals extends HTMLElement {
   async _buildButton() {
     const addButton = await slice.build("Button", {
       value: "Agregar nueva meta",
-      onClickCallback: () => this._buildModal(),
+      onClickCallback: () => this._openGoalModal(),
     });
     const container = this.querySelector(".button");
     if (container) container.appendChild(addButton);
@@ -147,7 +158,7 @@ export default class Goals extends HTMLElement {
         ...goal,
         id: i + 1,
 
-        onEdit: () => this._buildModal(goal, i),
+        onEdit: () => this._openGoalModal(goal, i),
 
         onDelete: () => this._deleteGoal(i),
 
@@ -168,90 +179,12 @@ export default class Goals extends HTMLElement {
     goalsListContainer.appendChild(grid);
   }
 
-  _buildModal(goal = null, index = null) {
-    this.editingIndex = index;
-
-    const backdrop = document.createElement("div");
-    backdrop.className = "tg-modal-backdrop";
-
-    const modal = document.createElement("div");
-    modal.className = "tg-modal";
-
-    modal.innerHTML = `
-      <form class="tg-form">
-        <div class="tg-modal-header">
-          <h3 class="tg-modal-title">${goal ? "Edit Goal" : "New Goal"}</h3>
-          <button type="button" class="tg-modal-close">×</button>
-        </div>
-
-        <div class="tg-form-body">
-          <div class="tg-field">
-            <label>Title</label>
-            <input name="title" placeholder="Goal title" required />
-          </div>
-
-          <div class="tg-field">
-            <label>Category</label>
-            <input name="category" placeholder="Category" required />
-          </div>
-
-          <div class="tg-row">
-            <div class="tg-field">
-              <label>Current</label>
-              <input name="current" type="number" min="0" required />
-            </div>
-            <div class="tg-field">
-              <label>Total</label>
-              <input name="total" type="number" min="1" required />
-            </div>
-          </div>
-
-          <div class="tg-field">
-            <label>Target Date</label>
-            <input name="targetDate" type="date" required />
-          </div>
-        </div>
-
-        <div class="tg-modal-actions">
-          <button type="button" class="tg-btn tg-btn--cancel">Cancel</button>
-          <button type="submit" class="tg-btn tg-btn--save">Save</button>
-        </div>
-      </form>
-    `;
-
-    backdrop.appendChild(modal);
-    document.body.appendChild(backdrop);
-
-    requestAnimationFrame(() =>
-      backdrop.classList.add("tg-modal-backdrop--open"),
-    );
-
-    const close = () => backdrop.remove();
-
-    modal.querySelector(".tg-modal-close").onclick = close;
-    modal.querySelector(".tg-btn--cancel").onclick = close;
-
-    if (goal) {
-      modal.querySelector("[name='title']").value = goal.title || "";
-      modal.querySelector("[name='category']").value = goal.category || "";
-      modal.querySelector("[name='current']").value = goal.current ?? 0;
-      modal.querySelector("[name='total']").value = goal.total ?? 1;
-      modal.querySelector("[name='targetDate']").value = goal.targetDate || "";
-    }
-
-    modal.querySelector("form").onsubmit = (e) => {
-      e.preventDefault();
-      const form = e.target;
-      const data = {
-        title: form.title.value,
-        category: form.category.value,
-        current: Number(form.current.value),
-        total: Number(form.total.value),
-        targetDate: form.targetDate.value,
-      };
-      this._saveGoal(data);
-      close();
-    };
+  _openGoalModal(goal = null, index = null) {
+    slice.events.emit("modal:open", {
+      type: "goal",
+      data: goal,
+      index,
+    });
   }
 
   _saveGoal(data) {

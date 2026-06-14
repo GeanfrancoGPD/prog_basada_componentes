@@ -58,6 +58,23 @@ export default class Header extends HTMLElement {
       itemElement.textContent = resolvedItem?.text || "";
       this.$items.appendChild(itemElement);
     }
+
+    this._renderButton();
+  }
+
+  async _renderButton() {
+    const buttonTheme = this.querySelector(".button-theme");
+
+    const currentTheme = slice.theme;
+
+    const themeToggleButton = await slice.build("ThemeSwitcher", {
+      label: "Theme",
+      themes: ["Light", "Dark", "Blue"],
+    });
+
+    if (buttonTheme) {
+      buttonTheme.appendChild(themeToggleButton);
+    }
   }
 }
 
