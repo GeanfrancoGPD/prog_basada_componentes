@@ -1,5 +1,9 @@
-import Slice from '/Slice/Slice.js';
+import Slice from "/Slice/Slice.js";
 
+await slice.build("ApiServices");
+
+const modal = await slice.build("Modal");
+document.body.appendChild(modal);
 
 /*
 slice.router.beforeEach(async (to, from, next) => {
