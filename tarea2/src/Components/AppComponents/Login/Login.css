@@ -1,0 +1,140 @@
+/* Styles for Login component */
+:host {
+  display: block;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
+
+.auth-container {
+  display: flex;
+  min-height: 85vh;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: transparent;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-primary, #ffffff);
+  color: var(--font-primary-color, #111111);
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid
+    color-mix(in srgb, var(--font-primary-color) 8%, transparent);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.auth-header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.auth-title {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.auth-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: var(--font-secondary-color, #666666);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* CAMPOS DE FORMULARIO */
+.tg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tg-field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--font-secondary-color, #666666);
+}
+
+.tg-field input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  box-sizing: border-box;
+  border: 1px solid
+    color-mix(in srgb, var(--font-primary-color) 12%, transparent);
+  background: var(--bg-secondary, #f9f9f9);
+  color: var(--font-primary-color);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.tg-field input:focus {
+  border-color: var(--primary-color);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--primary-color) 15%, transparent);
+}
+
+.tg-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* BOTÓN */
+.tg-btn {
+  border: none;
+  cursor: pointer;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  width: 100%;
+  transition: all 0.2s ease;
+  margin-top: 6px;
+}
+
+.tg-btn--primary {
+  background: var(--primary-color);
+  color: #ffffff;
+}
+
+.tg-btn--primary:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 12px
+    color-mix(in srgb, var(--primary-color) 20%, transparent);
+  transform: translateY(-0.5px);
+}
+
+/* FOOTER CARD */
+.auth-footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--font-secondary-color, #666666);
+}
+
+.auth-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}

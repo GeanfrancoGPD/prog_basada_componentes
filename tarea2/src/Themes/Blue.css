@@ -1,0 +1,41 @@
+:root {
+  --font-primary-color: #ffffff;
+
+  /** primary (Azul Oscuro Profundo) **/
+  --primary-color: #ecff16;
+  --primary-color-rgb: rgb(13, 35, 58);
+  /* Fondo principal oscuro pero con un elegante matiz azulado */
+  --primary-background-color: #0a141d;
+  --primary-color-contrast: #ffffff;
+  /* Sombra o tono intermedio basado en el azul oscuro */
+  --primary-color-shade: #162e47;
+
+  /** secondary (El Dorado Elegante) **/
+  --secondary-color: #d4af37;
+  --secondary-color-rgb: rgb(212, 175, 55);
+  /* Fondo secundario integrado al entorno oscuro */
+  --secondary-background-color: #1a2530;
+  --secondary-color-contrast: #000000;
+
+  /** tertiary (Tono Champaña / Dorado Suave para detalles) **/
+  --tertiary-background-color: #f4e8c1;
+
+  /** success (Verde Esmeralda - Armoniza mejor con el azul/dorado) **/
+  --success-color: #10b981;
+  --success-contrast: #ffffff;
+
+  /** warning (Ámbar / Dorado Brillante) **/
+  --warning-color: #f59e0b;
+  --warning-contrast: #000000;
+
+  /** danger (Rojo Carmesí) **/
+  --danger-color: #ef4444;
+  --danger-contrast: #ffffff;
+
+  /** medium (Gris Azulado Medio) **/
+  --medium-color: #64748b;
+  --medium-contrast: #ffffff;
+
+  /* Disabled color */
+  --disabled-color: #475569;
+}

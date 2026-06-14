@@ -3,6 +3,18 @@ const routes = [
   { path: "/", component: "HomePage" },
   { path: "/404", component: "NotFound" },
   {
+    path: "/Login",
+    component: "Login",
+  },
+  {
+    path: "/Register",
+    component: "Register",
+  },
+  {
+    path: "/Home",
+    component: "HomePage",
+  },
+  {
     path: "/Docum/${category}/${id}",
     component: "LandingPage",
   },

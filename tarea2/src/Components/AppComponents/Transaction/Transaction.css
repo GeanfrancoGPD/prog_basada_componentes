@@ -1,0 +1,54 @@
+/* Styles for transaction component */
+
+slice-transaction {
+  display: block;
+  width: 100%;
+  font-family: var(--font-family);
+  color: var(--font-primary-color);
+}
+
+.transaction {
+  display: flex;
+  align-items: flex-start;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.Sidebar-container {
+  flex: 0 0 auto;
+}
+
+.context {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.Header-container,
+.page-content {
+  width: 100%;
+  padding: 15px;
+}
+
+.transaction-table-bar {
+  width: 80%;
+  padding: 15px;
+}
+.transaction-table {
+  width: 95%;
+  margin: auto;
+  border-collapse: collapse;
+}
+
+.filter-button {
+  width: 80%;
+  padding: 15px;
+  grid-area: filter;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 1rem;
+}
