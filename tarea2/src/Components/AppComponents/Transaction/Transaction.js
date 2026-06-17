@@ -13,39 +13,52 @@ export default class Transaction extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.originalData = [
-      [
-        "2024-06-01",
-        "Compra en supermercado",
-        "Alimentación",
-        50.0,
-        "Completada",
-      ],
-      [
-        "2024-06-03",
-        "Pago de transporte público",
-        "Transporte",
-        2.5,
-        "Completada",
-      ],
-    ];
-    this.data = [...this.originalData];
+
+    this.services = slice.getComponent("Api-Services");
+    this.auth = slice.context.getState("auth");
+
+    this.state = {
+      transactionsData: null,
+    };
+
+    this.originalData = [];
+    this.data = [];
   }
 
   async init() {
-    this.events = slice.events.bind(this);
+    const loggedIn = await this._IsLogin();
+    if (!loggedIn) return;
 
+    this.state.transactionsData = await this.services.getTransactions();
+    console.log("Datos reales de Transacciones:", this.state.transactionsData);
+
+    const backendTransactions =
+      this.state.transactionsData?.data?.transactions || [];
+
+    this.originalData = backendTransactions.map((t) => [
+      t.fecha ? t.fecha.slice(0, 10) : "", // "2026-05-23T04:00..." -> "2026-05-23"
+      t.descripcion || "",
+      t.tipo || "gasto",
+      parseFloat(t.monto || 0),
+      t.tipo === "ingreso" ? "Completado" : "Completado", // O el estado que manejes
+      "", // Columna reservada para "Action"
+    ]);
+
+    this.data = [...this.originalData];
+
+    // Eventos
+    this.events = slice.events.bind(this);
     this.events.subscribe("transaction:save", (transaction) => {
-      this.originalData.push([
+      this.originalData.unshift([
+        // .unshift añade al principio para que se vea arriba
         transaction.date,
         transaction.description,
         transaction.category,
-        transaction.amount,
+        parseFloat(transaction.amount),
         transaction.status,
+        "",
       ]);
-
       this.data = [...this.originalData];
-
       this._buildTransactionTable();
     });
 
@@ -58,16 +71,22 @@ export default class Transaction extends HTMLElement {
     ]);
   }
 
+  async _IsLogin() {
+    if (!this.auth?.isAuthenticated) {
+      slice.router.navigate("/login");
+      return false;
+    }
+    return true;
+  }
+
   async _buildSidebar() {
     const sidebar = this.querySelector(".Sidebar-container");
-
     if (!sidebar) return;
 
     const menu = await slice.build("Sidebar", {
       title: "Dashboard fintraack",
       items: Transaction.menuItems,
     });
-
     sidebar.appendChild(menu);
   }
 
@@ -75,7 +94,6 @@ export default class Transaction extends HTMLElement {
     const searchBar = await slice.build("SearchBar", {});
     const addButton = await slice.build("Button", {
       value: "Agregar transaction",
-
       onClickCallback: () => {
         slice.events.emit("modal:open", {
           type: "transaction",
@@ -99,8 +117,8 @@ export default class Transaction extends HTMLElement {
     const transactionTable = await slice.build("Table", {
       headers: [
         "Fecha",
-        "Descricion",
-        "Categoria",
+        "Descripción",
+        "Tipo/Categoría",
         "Cantidad",
         "Estado",
         "Action",
@@ -116,38 +134,55 @@ export default class Transaction extends HTMLElement {
     const bar = this.querySelector(".transaction-table-bar");
     if (!bar) return;
 
+    const backendCategories =
+      this.state.transactionsData?.data?.categories || [];
+
+    const nombresCategorias = backendCategories.map((item) => item.categoria);
+    const montosCategorias = backendCategories.map((item) =>
+      parseFloat(item.total || 0),
+    );
+
     const miGraficaDeBarras = await slice.build("Graphics", {
       type: "bar",
       title: "Distribución de Gastos Mensuales",
-      categories: ["Alimentación", "Transporte", "Vivienda", "Ocio", "Salud"],
+      categories:
+        nombresCategorias.length > 0 ? nombresCategorias : ["Sin Datos"],
       series: [
         {
           name: "Monto",
-          data: [450, 120, 800, 300, 150],
+          data: montosCategorias.length > 0 ? montosCategorias : [0],
         },
       ],
       accentColor: "var(--primary-color)",
     });
 
-    console.log("Gráfica de barras añadida al DOM");
     bar.appendChild(miGraficaDeBarras);
   }
 
   async _buildFilterTable() {
     const filterContainer = this.querySelector(".filter-button");
-
     if (!filterContainer) return;
 
     filterContainer.innerHTML = "";
+
+    // CORRECCIÓN: Filtros dinámicos basados en la propiedad 'categories'
+    const backendCategories =
+      this.state.transactionsData?.data?.categories || [];
+    const categoryOptions = [
+      { label: "Sin filtro", value: "" },
+      ...backendCategories.map((item) => ({
+        label: item.categoria,
+        value: item.categoria,
+      })),
+    ];
 
     const dateFilter = await slice.build("Select", {
       label: "Fecha",
       visibleProp: "label",
       options: [
         { label: "Sin filtro", value: "" },
-        { label: "Junio 2024", value: "2024-06" },
-        { label: "Mayo 2024", value: "2024-05" },
-        { label: "Abril 2024", value: "2024-04" },
+        { label: "Mayo 2026", value: "2026-05" },
+        { label: "Abril 2026", value: "2026-04" },
       ],
       onOptionSelect: () => this._applyFilters(),
     });
@@ -155,14 +190,7 @@ export default class Transaction extends HTMLElement {
     const categoryFilter = await slice.build("Select", {
       label: "Categoría",
       visibleProp: "label",
-      options: [
-        { label: "Sin filtro", value: "" },
-        { label: "Alimentación", value: "Alimentación" },
-        { label: "Transporte", value: "Transporte" },
-        { label: "Vivienda", value: "Vivienda" },
-        { label: "Ocio", value: "Ocio" },
-        { label: "Salud", value: "Salud" },
-      ],
+      options: categoryOptions,
       onOptionSelect: () => this._applyFilters(),
     });
 
@@ -171,8 +199,8 @@ export default class Transaction extends HTMLElement {
       visibleProp: "label",
       options: [
         { label: "Sin filtro", value: "" },
-        { label: "Completada", value: "Completada" },
-        { label: "Pendiente", value: "Pendiente" },
+        { label: "gasto", value: "gasto" },
+        { label: "ingreso", value: "ingreso" },
       ],
       onOptionSelect: () => this._applyFilters(),
     });
@@ -185,21 +213,21 @@ export default class Transaction extends HTMLElement {
     filterContainer.appendChild(categoryFilter);
     filterContainer.appendChild(statusFilter);
   }
+
   _applyFilters() {
-    if (!this.originalData) {
-      console.warn("originalData aún no está listo");
-      return;
-    }
+    if (!this.originalData) return;
+
     const date = this.dateFilter?.value?.value || "";
     const category = this.categoryFilter?.value?.value || "";
     const status = this.statusFilter?.value?.value || "";
 
     this.data = this.originalData.filter((transaction) => {
       const matchDate = !date || transaction[0].startsWith(date);
-
+      // Ajustamos los índices del filtro al nuevo arreglo:
+      // transaction[2] es tipo/categoria y transaction[4] es estado/tipo de flujo
       const matchCategory = !category || transaction[2] === category;
-
-      const matchStatus = !status || transaction[4] === status;
+      const matchStatus =
+        !status || transaction[4].toLowerCase() === status.toLowerCase();
 
       return matchDate && matchCategory && matchStatus;
     });

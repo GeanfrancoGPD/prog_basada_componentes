@@ -1,51 +1,85 @@
 export default class Login extends HTMLElement {
+  static props = {};
+
+  constructor() {
+    super();
+
+    slice.attachTemplate(this);
+    slice.controller.setComponentProps(this, Login.props);
+
+    this.state = {
+      gmail: "",
+      password: "",
+      loading: false,
+      error: null,
+    };
+
+    this.api = slice.getComponent("Api-Services");
+  }
+
   async init() {
-    if (typeof slice !== "undefined" && slice.attachTemplate) {
-      await slice.attachTemplate(this); // Si attachTemplate devuelve promesa, la esperamos
+    this.events = slice.events.bind(this);
+
+    console.log("API URL:", this.api);
+    await Promise.all([this._buildForm(), this._bindEvents()]);
+  }
+
+  async _buildForm() {
+    // Si luego necesitas construir componentes hijos
+    // aquí va la lógica.
+  }
+
+  _bindEvents() {
+    const form = this.querySelector(".auth-form");
+
+    if (!form) {
+      console.error("Formulario no encontrado");
+      return;
     }
 
-    // Le damos un respiro mínimo al ciclo de vida para que el HTML se monte en el DOM
-    setTimeout(() => {
-      this.form = this.querySelector("form");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await this.login();
+    });
+  }
 
-      // Validamos que el formulario realmente exista antes de asignarle el evento
-      if (!this.form) {
-        console.error(
-          "No se encontró el elemento <form> dentro de slice-login. Verifica que login.html esté bien cargado.",
-        );
+  async login() {
+    try {
+      this.state.loading = true;
+
+      const gmailInput = this.querySelector("#gmail");
+      const passwordInput = this.querySelector("#password");
+
+      if (!gmailInput || !passwordInput) {
+        console.error("Inputs no encontrados");
         return;
       }
 
-      this.form.onsubmit = async (e) => {
-        e.preventDefault();
+      const gmail = gmailInput.value;
+      const password = passwordInput.value;
+      console.log("Intentando login con:", { gmail, password });
+      const response = await this.api.login(gmail, password);
 
-        try {
-          const gmail = this.form.gmail.value;
-          const password = this.form.password.value;
+      console.log("Respuesta del login:", response);
+      if (!response.success) {
+        this.state.error = response.message;
+        return;
+      }
 
-          // Consumimos el servicio que añadimos manualmente arriba
-          const res = await slice.services.api.login(gmail, password);
+      slice.context.setState("auth", {
+        user: response.user,
+        isAuthenticated: true,
+      });
 
-          // Guardar usuario global
-          slice.context.updateContext("auth", {
-            user: res.user,
-            isAuthenticated: true,
-          });
+      this.events.emit("auth:login", response.user);
 
-          slice.events.emit("notification:show", {
-            message: "¡Bienvenido de nuevo!",
-            type: "success",
-          });
-
-          slice.router.navigate("/");
-        } catch (err) {
-          slice.events.emit("notification:show", {
-            message: err.message || "Error al iniciar sesión",
-            type: "error",
-          });
-        }
-      };
-    }, 50);
+      slice.router.navigate("/Home");
+    } catch (error) {
+      console.error(error);
+      this.state.error = "Error en login";
+    } finally {
+      this.state.loading = false;
+    }
   }
 }
 

@@ -1,12 +1,29 @@
 export default class HomePage extends HTMLElement {
-  constructor(props) {
+  static props = {};
+
+  constructor() {
     super();
     slice.attachTemplate(this);
-    slice.controller.setComponentProps(this, props);
+    slice.controller.setComponentProps(this, HomePage.props);
     this.debuggerProps = [];
+    this.services = slice.getComponent("Api-Services");
+    this.state = {
+      dashboardData: null,
+    };
+    this.auth = slice.context.getState("auth");
   }
 
   async init() {
+    const loggedIn = await this._IsLogin();
+    console.log("Estado de autenticación:", loggedIn, this.auth);
+    if (!loggedIn) {
+      return;
+    }
+
+    this.state.dashboardData = await this.services.getDashboard();
+
+    console.log("Dashboard:", this.state.dashboardData);
+
     await Promise.all([
       this._buildSidebar(),
       this._buildHeader(),
@@ -17,11 +34,22 @@ export default class HomePage extends HTMLElement {
     ]);
   }
 
+  async _IsLogin() {
+    if (!this.auth.isAuthenticated) {
+      slice.router.navigate("/login");
+      return false;
+    }
+
+    console.log("obteniendo contexto auth:", this.auth);
+
+    return true;
+  }
+
   async _buildSidebar() {
     const sidebar = await slice.build("Sidebar", {
       title: "Dashboard fintraack",
       items: [
-        { text: "Dashboard", path: "/" },
+        { text: "Dashboard", path: "/Home" },
         { text: "Transaction", path: "/Transaction" },
         { text: "Statistics", path: "/Statistics" },
         { text: "Goals", path: "/Goals" },
@@ -53,18 +81,25 @@ export default class HomePage extends HTMLElement {
     const panelsContainer = this.querySelector(".dashboard-panels");
 
     if (!panelsContainer) return;
+    const balance = this.state.dashboardData?.data?.summary?.[0]?.balance;
+    const expensesByCategory =
+      this.state.dashboardData?.data?.expensesByCategory || [];
 
     const monthlyStatsSchema = [
       {
         type: "icon",
         nombre: "bar_grafic",
       },
-      { type: "title", text: "Gastos mensuales" },
-      { type: "value", text: "$5,120.30" },
-      { type: "badge", text: "-4.2%" },
+      { type: "title", text: "Balance mensual" },
+      { type: "value", text: `$${balance || 0}` },
     ];
 
     const divDonut = document.createElement("div");
+
+    const chartSeries = expensesByCategory.map((item) => ({
+      name: item.categoria,
+      data: parseFloat(item.total),
+    }));
 
     divDonut.appendChild(
       await slice.build("Graphics", {
@@ -72,12 +107,7 @@ export default class HomePage extends HTMLElement {
         height: 220,
         width: 80,
         title: "Distribución por categorías",
-        series: [
-          { name: "Ocio", data: 35 },
-          { name: "Transporte", data: 25 },
-          { name: "Comida", data: 20 },
-          { name: "Otros", data: 20 },
-        ],
+        series: chartSeries,
       }),
     );
 
@@ -91,82 +121,113 @@ export default class HomePage extends HTMLElement {
 
   async _buildDashboardPanels2() {
     const panelsContainer = this.querySelector(".dashboard-panels-2");
+    if (!panelsContainer) return;
+    const incomeVsExpenses =
+      this.state.dashboardData?.data?.incomeVsExpenses || [];
+
+    const datosMesActual = incomeVsExpenses[0] || {};
+    const ingresos = Number(datosMesActual.ingresos || 0);
+    const gastos = Number(datosMesActual.gastos || 0);
+
+    const datosMesPasado = incomeVsExpenses[1] || {};
+    const ingresosMesPasado = Number(datosMesPasado.ingresos || 0);
+
+    // --- PANEL 1: Gastos Mensuales ---
     const one = document.createElement("div");
     one.appendChild(
       await slice.build("Target", {
         variant: "stats",
         context: [
-          {
-            type: "icon",
-            nombre: "bar_grafic",
-          },
+          { type: "icon", nombre: "bar_grafic" },
           { type: "title", text: "Gastos mensuales" },
-          { type: "value", text: "$5,120.30" },
-          { type: "badge", text: "-4.2%" },
+          { type: "value", text: `$${gastos.toFixed(2)}` },
         ],
       }),
     );
 
+    // --- PANEL 2: Ingresos Mensuales ---
     const two = document.createElement("div");
     two.appendChild(
       await slice.build("Target", {
         variant: "stats",
         context: [
-          {
-            type: "icon",
-            nombre: "bar_grafic",
-          },
+          { type: "icon", nombre: "bar_grafic" },
           { type: "title", text: "Ingresos mensuales" },
-          { type: "value", text: "$8,450.60" },
-          { type: "badge", text: "+2.8%" },
+          { type: "value", text: `$${ingresos.toFixed(2)}` },
         ],
       }),
     );
 
+    // --- PANEL 3: Ingresos Mes Pasado ---
     const three = document.createElement("div");
     three.appendChild(
       await slice.build("Target", {
         variant: "stats",
         context: [
-          {
-            type: "icon",
-            nombre: "bar_grafic",
-          },
-          { type: "title", text: "Ingresos mensuales" },
-          { type: "value", text: "$8,450.60" },
-          { type: "badge", text: "+2.8%" },
+          { type: "icon", nombre: "bar_grafic" },
+          { type: "title", text: "Ingresos del mes pasado" },
+          { type: "value", text: `$${ingresosMesPasado.toFixed(2)}` },
         ],
       }),
     );
 
-    if (!panelsContainer) return;
+    // --- CONSTRUCCIÓN DEL GRID ---
     const grid = await slice.build("Grid", {
       columns: "3",
       arrow: "1",
       items: [one, two, three],
     });
+
     panelsContainer.appendChild(grid);
   }
 
   async _buildGraphics() {
     const container = this.querySelector(".graphics-container");
-
     if (!container) return;
+
+    const incomeVsExpenses =
+      this.state.dashboardData?.data?.incomeVsExpenses || [];
+    const cronologicalData = [...incomeVsExpenses].reverse();
+
+    const formatter = new Intl.DateTimeFormat("es", { month: "long" });
+
+    // Mapeamos los nombres de los meses de forma dinámica
+    const meses = cronologicalData.map((item) => {
+      if (!item.mes) return "";
+
+      // Separamos el año y el mes de la cadena "YYYY-MM" (Ej: "2026-05" -> ["2026", "05"])
+      const [year, month] = item.mes.split("-");
+
+      // Creamos una fecha en JavaScript.
+      // Nota: Restamos 1 al mes porque en JavaScript los meses van de 0 (enero) a 11 (diciembre).
+      const date = new Date(Number(year), Number(month) - 1, 1);
+
+      // Formateamos la fecha para obtener el nombre del mes
+      const nombreMes = formatter.format(date);
+
+      // Opcional: Ponemos la primera letra en mayúscula (Ej: "mayo" -> "Mayo")
+      return nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
+    });
+
+    const gastosData = cronologicalData.map((item) => Number(item.gastos || 0));
+    const ingresosData = cronologicalData.map((item) =>
+      Number(item.ingresos || 0),
+    );
 
     const graphics = await slice.build("Graphics", {
       type: "area",
       height: 440,
       width: "100%",
       title: "Evolución de gastos e ingresos",
-      categories: ["Ene", "Feb", "Mar", "Abr", "May", "Jun"],
+      categories: meses,
       series: [
         {
           name: "Gastos",
-          data: [1200, 1750, 1540, 1980, 2200, 2410],
+          data: gastosData,
         },
         {
           name: "Ingresos",
-          data: [1600, 1900, 2050, 2300, 2500, 2750],
+          data: ingresosData,
         },
       ],
     });
@@ -230,35 +291,36 @@ export default class HomePage extends HTMLElement {
 
   async _buildSuggestions() {
     const container = this.querySelector(".suggestions-container");
-
     if (!container) return;
 
-    const suggestions = [
-      {
-        title: "Recomendación 1",
-        text: "Tus gastos en ocio subieron esta semana. Revisa categorías con más variación.",
-      },
-      {
-        title: "Recomendación 2",
-        text: "Hay un pico en transporte. Puedes comparar esta semana con el promedio mensual.",
-      },
-      {
-        title: "Recomendación 3",
-        text: "Tu saldo disponible es estable, pero conviene vigilar compras pequeñas repetidas.",
-      },
-    ];
+    const recommendations =
+      this.state.dashboardData?.data?.recommendations || [];
 
+    // Si no hay recomendaciones del servidor, creamos un estado por defecto para que no quede vacío
+    const suggestionsToRender =
+      recommendations.length > 0
+        ? recommendations
+        : [
+            {
+              type: "info",
+              title: "Todo al día",
+              message:
+                "No tienes alertas de gastos pendientes para este periodo.",
+            },
+          ];
+
+    //  Construimos los componentes usando la información mapeada
     const cards = await Promise.all(
-      suggestions.map((suggestion) =>
+      suggestionsToRender.map((suggestion) =>
         slice.build("Target", {
-          variant: "info",
+          variant: suggestion.type || "info", // Usa "warning", "info", etc., dinámicamente según tu JSON
           context: [
             {
               type: "icon",
               nombre: "bar_grafic",
             },
             { type: "title", text: suggestion.title },
-            { type: "text", text: suggestion.text },
+            { type: "text", text: suggestion.message }, // En tu JSON se llama 'message' en lugar de 'text'
           ],
         }),
       ),
