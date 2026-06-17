@@ -1,0 +1,103 @@
+import { Pool } from "pg";
+import fs from "fs";
+import { log } from "console";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+class DB {
+  constructor() {}
+
+  async init() {
+    try {
+      const isProduction = process.env.NODE_ENV === "production";
+      let poolConfig = {};
+
+      // Si estás en la nube (producción) y tienes DATABASE_URL
+      if (process.env.DATABASE_URL) {
+        poolConfig.connectionString = process.env.DATABASE_URL;
+      } else {
+        // Si estás en local, usa las variables sueltas directamente
+        poolConfig.user = process.env.DB_USER;
+        poolConfig.host = process.env.DB_HOST;
+        poolConfig.database = process.env.DB_DATABASE;
+        poolConfig.password = process.env.DB_PASSWORD;
+        poolConfig.port = process.env.DB_PORT
+          ? parseInt(process.env.DB_PORT, 10)
+          : 5432;
+      }
+
+      // Configuraciones comunes del Pool
+      poolConfig.max = parseInt(process.env.DB_MAX, 10) || 20;
+      poolConfig.idleTimeoutMillis =
+        parseInt(process.env.DB_IDLE_TIMEOUT, 10) || 30000;
+      poolConfig.connectionTimeoutMillis =
+        parseInt(process.env.DB_CONN_TIMEOUT, 10) || 2000;
+
+      // Configuración SSL estricta para producción
+      poolConfig.ssl = isProduction ? { rejectUnauthorized: false } : false;
+
+      // Inicializamos el Pool con la configuración limpia
+      this.pool = new Pool(poolConfig);
+
+      const client = await this.pool.connect();
+      console.log("Base de datos inicializada correctamente");
+      console.log(
+        `Conexión exitosa a PostgreSQL (${process.env.DATABASE_URL ? "Nube/Producción" : "Local"})`,
+      );
+      client.release();
+    } catch (error) {
+      console.error("Error al inicializar la base de datos:", error);
+    }
+    this.loadQueries();
+  }
+
+  async loadQueries() {
+    try {
+      const queryFile = new URL(
+        "../module/Finanzas/data/query.json",
+        import.meta.url,
+      );
+      const data = fs.readFileSync(queryFile, "utf8");
+      this.queries = JSON.parse(data);
+    } catch (error) {
+      console.error("Error al cargar query.json:", error);
+    }
+  }
+
+  async executeQuery(query, params = []) {
+    const result = await this.pool.query(query, params);
+    return result.rows;
+  }
+
+  async excecuteNameQuery(nameQuery, params = {}) {
+    try {
+      await this.loadQueries();
+      const queryConfig = this.queries[nameQuery];
+
+      // DEBUG: Mira qué sale aquí. Si sale "undefined", ahí está el problema.
+      console.log("Query encontrada:", queryConfig);
+
+      const query = queryConfig.query;
+      const values = queryConfig.orderArray.map((key) => params[key]);
+
+      console.log("VALUES:", values);
+      // DEBUG: Esto es lo que realmente ve la base de datos
+      // console.log("Enviando a SQL:", query);
+
+      const result = await this.pool.query(query, values);
+      return result.rows;
+    } catch (error) {
+      console.error("Error detallado:", error);
+    }
+  }
+
+  async close() {
+    if (this.pool) {
+      await this.pool.end();
+      console.log("Conexión a BD cerrada");
+    }
+  }
+}
+
+export default new DB();

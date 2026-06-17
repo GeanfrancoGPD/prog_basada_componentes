@@ -1,0 +1,172 @@
+{
+  "getUserByEmail": {
+    "query": "SELECT id, nombre, gmail, password_hash AS contrasena FROM usuarios WHERE gmail = $1",
+    "structure_params": {
+      "gmail": "string"
+    },
+    "orderArray": ["gmail"]
+  },
+
+  "getUserById": {
+    "query": "SELECT id, nombre, gmail FROM usuarios WHERE id = $1",
+    "structure_params": {
+      "usuario_id": "number"
+    },
+    "orderArray": ["usuario_id"]
+  },
+  "getAllUsers": {
+    "query": "SELECT id, nombre, gmail, moneda_preferida FROM usuarios ORDER BY nombre ASC",
+    "structure_params": {},
+    "orderArray": []
+  },
+  "createUser": {
+    "query": "INSERT INTO usuarios(nombre, gmail, password_hash) VALUES($1,$2,$3)",
+    "structure_params": {
+      "nombre": "string",
+      "gmail": "string",
+      "password_hash": "string"
+    },
+    "orderArray": ["nombre", "gmail", "password_hash"]
+  },
+
+  "getTransactionsByUser": {
+    "query": "SELECT t.id, t.tipo, t.monto, t.descripcion, t.fecha, c.nombre AS categoria FROM transacciones t INNER JOIN categorias c ON c.id = t.categoria_id WHERE t.usuario_id = $1 ORDER BY t.fecha DESC",
+    "structure_params": {
+      "usuario_id": "number"
+    },
+    "orderArray": ["usuario_id"]
+  },
+
+  "createTransaction": {
+    "query": "INSERT INTO transacciones(usuario_id, categoria_id, tipo, monto, descripcion, fecha) VALUES($1,$2,$3,$4,$5,$6)",
+    "structure_params": {
+      "usuario_id": "number",
+      "categoria_id": "number",
+      "tipo": "string",
+      "monto": "number",
+      "descripcion": "string",
+      "fecha": "string"
+    },
+    "orderArray": [
+      "usuario_id",
+      "categoria_id",
+      "tipo",
+      "monto",
+      "descripcion",
+      "fecha"
+    ]
+  },
+
+  "getGoalsByUser": {
+    "query": "SELECT id, titulo, monto_objetivo, monto_actual, fecha_limite, estado FROM metas_financieras WHERE usuario_id = $1 ORDER BY fecha_limite ASC",
+    "structure_params": {
+      "usuario_id": "number"
+    },
+    "orderArray": ["usuario_id"]
+  },
+
+  "createGoal": {
+    "query": "INSERT INTO metas_financieras(usuario_id, titulo, monto_objetivo, monto_actual, fecha_limite) VALUES($1,$2,$3,$4,$5)",
+    "structure_params": {
+      "usuario_id": "number",
+      "titulo": "string",
+      "monto_objetivo": "number",
+      "monto_actual": "number",
+      "fecha_limite": "string"
+    },
+    "orderArray": [
+      "usuario_id",
+      "titulo",
+      "monto_objetivo",
+      "monto_actual",
+      "fecha_limite"
+    ]
+  },
+
+  "getBalanceByUser": {
+    "query": "SELECT COALESCE(SUM(CASE WHEN tipo = 'ingreso' THEN monto ELSE -monto END),0) AS balance FROM transacciones WHERE usuario_id = $1",
+    "structure_params": {
+      "usuario_id": "number"
+    },
+    "orderArray": ["usuario_id"]
+  },
+
+  "getTotalExpensesByUser": {
+    "query": "SELECT COALESCE(SUM(monto),0) AS total_gastos FROM transacciones WHERE usuario_id = $1 AND tipo = 'gasto'",
+    "structure_params": {
+      "usuario_id": "number"
+    },
+    "orderArray": ["usuario_id"]
+  },
+
+  "getExpensesByCategory": {
+    "query": "SELECT c.nombre AS categoria, COALESCE(SUM(t.monto),0) AS total FROM transacciones t INNER JOIN categorias c ON c.id = t.categoria_id WHERE t.usuario_id = $1 AND t.tipo = 'gasto' GROUP BY c.nombre ORDER BY total DESC",
+    "structure_params": {
+      "usuario_id": "number"
+    },
+    "orderArray": ["usuario_id"]
+  },
+
+  "getIncomeByCategory": {
+    "query": "SELECT c.nombre AS categoria, COALESCE(SUM(t.monto),0) AS total FROM transacciones t INNER JOIN categorias c ON c.id = t.categoria_id WHERE t.usuario_id = $1 AND t.tipo = 'ingreso' GROUP BY c.nombre ORDER BY total DESC",
+    "structure_params": {
+      "usuario_id": "number"
+    },
+    "orderArray": ["usuario_id"]
+  },
+
+  "getMonthlyExpenses": {
+    "query": "SELECT TO_CHAR(fecha,'YYYY-MM') AS mes, COALESCE(SUM(monto),0) AS total FROM transacciones WHERE usuario_id = $1 AND tipo = 'gasto' GROUP BY mes ORDER BY mes",
+    "structure_params": {
+      "usuario_id": "number"
+    },
+    "orderArray": ["usuario_id"]
+  },
+
+  "getMonthlyIncome": {
+    "query": "SELECT TO_CHAR(fecha,'YYYY-MM') AS mes, COALESCE(SUM(monto),0) AS total FROM transacciones WHERE usuario_id = $1 AND tipo = 'ingreso' GROUP BY mes ORDER BY mes",
+    "structure_params": {
+      "usuario_id": "number"
+    },
+    "orderArray": ["usuario_id"]
+  },
+
+  "getIncomeVsExpenses": {
+    "query": "SELECT TO_CHAR(fecha,'YYYY-MM') AS mes, COALESCE(SUM(CASE WHEN tipo='ingreso' THEN monto END),0) AS ingresos, COALESCE(SUM(CASE WHEN tipo='gasto' THEN monto END),0) AS gastos FROM transacciones WHERE usuario_id = $1 GROUP BY mes ORDER BY mes DESC",
+    "structure_params": {
+      "usuario_id": "number"
+    },
+    "orderArray": ["usuario_id"]
+  },
+  "getActiveGoals": {
+    "query": "SELECT id, titulo, monto_objetivo, monto_actual, fecha_limite, estado FROM metas_financieras WHERE usuario_id = $1 AND estado = 'activa' ORDER BY fecha_limite",
+    "structure_params": {
+      "usuario_id": "number"
+    },
+    "orderArray": ["usuario_id"]
+  },
+
+  "getGoalProgress": {
+    "query": "SELECT COUNT(*) AS total_metas, COUNT(CASE WHEN estado = 'completada' THEN 1 END) AS metas_completadas, ROUND((COUNT(CASE WHEN estado = 'completada' THEN 1 END)::numeric / NULLIF(COUNT(*),0))*100,2) AS porcentaje_completado FROM metas_financieras WHERE usuario_id = $1",
+    "structure_params": {
+      "usuario_id": "number"
+    },
+    "orderArray": ["usuario_id"]
+  },
+
+  "getDashboardSummary": {
+    "query": "SELECT COALESCE(SUM(CASE WHEN tipo='ingreso' THEN monto ELSE 0 END),0) AS ingresos, COALESCE(SUM(CASE WHEN tipo='gasto' THEN monto ELSE 0 END),0) AS gastos, COALESCE(SUM(CASE WHEN tipo='ingreso' THEN monto ELSE -monto END),0) AS balance FROM transacciones WHERE usuario_id = $1",
+    "structure_params": {
+      "usuario_id": "number"
+    },
+    "orderArray": ["usuario_id"]
+  },
+  "updateUserPassword": {
+    "query": "UPDATE usuarios SET password_hash = $2 WHERE id = $1",
+    "structure_params": {
+      "usuario_id": "number",
+      "newPasswordHash": "string"
+    },
+    "orderArray": ["usuario_id", "newPasswordHash"]
+  }
+}
