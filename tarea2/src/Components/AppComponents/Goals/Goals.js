@@ -11,16 +11,8 @@ export default class Goals extends HTMLElement {
     super();
     slice.attachTemplate(this);
 
-    this.goals = [
-      {
-        title: "New Tesla Model 3",
-        category: "Personal Travel",
-        icon: "car",
-        current: 28000,
-        total: 45000,
-        targetDate: "2024-12-20",
-      },
-    ];
+    this.goals = [];
+    this.services = slice.getComponent("Api-Services");
 
     this.editingIndex = null;
   }
@@ -28,16 +20,24 @@ export default class Goals extends HTMLElement {
   async init() {
     this.events = slice.events.bind(this);
 
-    this.events.subscribe("goal:save", ({ data, index }) => {
-      if (index !== null) {
-        this.goals[index] = data;
-      } else {
-        this.goals.push(data);
-      }
+    this.events.subscribe("goal:save", async ({ data, index }) => {
+      const goal =
+        index !== null ? this.goals.find((g) => g.id === index) : null;
 
-      this._buildGoalsList();
+      await this._saveGoal(goal, data);
+      this._buildMetrics();
     });
 
+    this.events.subscribe("goal:delete", async ({ index }) => {
+      const goal = this.goals.find((g) => g.id === index);
+      if (goal) {
+        await this._deleteGoal(goal.id);
+      }
+      this._buildMetrics();
+      this._buildGoalsList();
+    });
+    await this._IsLogin();
+    await this._loadGoals();
     await Promise.all([
       this._buildButton(),
       this._buildSidebar(),
@@ -48,6 +48,23 @@ export default class Goals extends HTMLElement {
   }
 
   update() {}
+
+  async _IsLogin() {
+    const auth = slice.context.getState("auth");
+    if (!auth.isAuthenticated) {
+      slice.router.navigate("/login");
+      return false;
+    }
+
+    return true;
+  }
+
+  async _loadGoals() {
+    const response = await this.services.getGoals();
+
+    // Ajusta según la estructura real:
+    this.goals = response.data || response.goals || response || [];
+  }
 
   async _buildSidebar() {
     const sidebar = this.querySelector(".Sidebar-container");
@@ -75,7 +92,7 @@ export default class Goals extends HTMLElement {
   async _buildButton() {
     const addButton = await slice.build("Button", {
       value: "Agregar nueva meta",
-      onClickCallback: () => this._openGoalModal(),
+      onClickCallback: () => this._openGoalModal(null, null),
     });
     const container = this.querySelector(".button");
     if (container) container.appendChild(addButton);
@@ -84,15 +101,31 @@ export default class Goals extends HTMLElement {
   async _buildMetrics() {
     const metricsContainer = this.querySelector(".goals-Metrics");
     if (!metricsContainer) return;
+    console.log("Construyendo métricas con metas:", this.goals);
 
+    metricsContainer.innerHTML = "";
+    let activeGoals = this.goals.filter((g) => g.estado === "activa").length;
+    let totalGoals = this.goals.length;
+    let completedGoals = this.goals.filter(
+      (g) => g.estado === "completada",
+    ).length;
+    let progressPercent =
+      totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
+
+    console.log("Métricas calculadas:", {
+      activeGoals,
+      totalGoals,
+      completedGoals,
+      progressPercent,
+    });
     const metricsProgress = document.createElement("div");
     metricsProgress.appendChild(
       await slice.build("Graphics", {
         type: "progress-donut",
         title: "Progreso de metas",
-        currentValue: 7,
-        totalValue: 10,
-        height: "150px",
+        currentValue: completedGoals,
+        totalValue: totalGoals,
+        height: 150,
       }),
     );
 
@@ -103,7 +136,7 @@ export default class Goals extends HTMLElement {
         context: [
           { type: "icon", nombre: "bar_grafic" },
           { type: "title", text: "Tareas completadas" },
-          { type: "value", text: "4" },
+          { type: "value", text: `${completedGoals}` },
           { type: "badge", text: "-4.2%" },
         ],
       }),
@@ -116,7 +149,7 @@ export default class Goals extends HTMLElement {
         context: [
           { type: "icon", nombre: "bar_grafic" },
           { type: "title", text: "Tareas pendientes" },
-          { type: "value", text: "6" },
+          { type: "value", text: `${totalGoals - completedGoals}` },
           { type: "badge", text: "+2.5%" },
         ],
       }),
@@ -129,7 +162,7 @@ export default class Goals extends HTMLElement {
         context: [
           { type: "icon", nombre: "bar_grafic" },
           { type: "title", text: "Progreso general" },
-          { type: "value", text: "50%" },
+          { type: "value", text: `${progressPercent}%` },
           { type: "badge", text: "+1.5%" },
         ],
       }),
@@ -153,14 +186,13 @@ export default class Goals extends HTMLElement {
 
     for (let i = 0; i < this.goals.length; i++) {
       const goal = this.goals[i];
-
       const goalEl = await slice.build("TargetGoals", {
         ...goal,
         id: i + 1,
 
         onEdit: () => this._openGoalModal(goal, i),
 
-        onDelete: () => this._deleteGoal(i),
+        onDelete: () => this._deleteGoal(goal.id),
 
         onComplete: () => {
           this.goals[i].completed = true;
@@ -187,20 +219,40 @@ export default class Goals extends HTMLElement {
     });
   }
 
-  _saveGoal(data) {
-    if (this.editingIndex !== null) {
-      this.goals[this.editingIndex] = data;
-      this.editingIndex = null;
-    } else {
-      this.goals.push(data);
-    }
+  async _saveGoal(goal, data) {
+    console.log("Guardando goal:", goal, "con datos:", data);
+    const dataToSave = {
+      titulo: data.title,
+      monto_objetivo: data.current,
+      monto_actual: data.total,
+      fecha_limite: data.targetDate,
+      estado: goal ? goal.estado : "activa",
+    };
+    try {
+      if (goal?.id) {
+        const response = await this.services.updateGoal(goal.id, dataToSave);
+        console.log("Respuesta de actualización:", response);
+      } else {
+        await this.services.createGoal(dataToSave);
+      }
 
-    this._buildGoalsList();
+      await this._loadGoals();
+      await this._buildGoalsList();
+    } catch (error) {
+      console.error(error);
+    }
   }
 
-  _deleteGoal(index) {
-    this.goals.splice(index, 1);
-    this._buildGoalsList();
+  async _deleteGoal(id) {
+    try {
+      const response = await this.services.deleteGoal(id);
+      console.log("Respuesta de eliminación:", response);
+
+      await this._loadGoals();
+      await this._buildGoalsList();
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
 

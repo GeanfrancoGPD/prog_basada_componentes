@@ -312,32 +312,32 @@ export default class Graphics extends HTMLElement {
 
     const svg = document.createElementNS(svgNS, "svg");
     svg.setAttribute("viewBox", `0 0 ${SIZE} ${SIZE}`);
-    svg.setAttribute("width", SIZE);
-    svg.setAttribute("height", SIZE);
+    svg.setAttribute("width", `${SIZE}px`);
+    svg.setAttribute("height", `${SIZE}px`);
 
     // Track
     const track = document.createElementNS(svgNS, "circle");
-    track.setAttribute("cx", SIZE / 2);
-    track.setAttribute("cy", SIZE / 2);
-    track.setAttribute("r", R);
+    track.setAttribute("cx", `${SIZE / 2}px`);
+    track.setAttribute("cy", `${SIZE / 2}px`);
+    track.setAttribute("r", `${R}px`);
     track.setAttribute("fill", "none");
     track.setAttribute(
       "stroke",
       "rgba(var(--primary-color-rgb, 99,102,241), 0.12)",
     );
-    track.setAttribute("stroke-width", STROKE);
+    track.setAttribute("stroke-width", `${STROKE}px`);
 
     // Progress arc
     const arc = document.createElementNS(svgNS, "circle");
-    arc.setAttribute("cx", SIZE / 2);
-    arc.setAttribute("cy", SIZE / 2);
-    arc.setAttribute("r", R);
+    arc.setAttribute("cx", `${SIZE / 2}px`);
+    arc.setAttribute("cy", `${SIZE / 2}px`);
+    arc.setAttribute("r", `${R}px`);
     arc.setAttribute("fill", "none");
     arc.setAttribute("stroke", accent);
-    arc.setAttribute("stroke-width", STROKE);
+    arc.setAttribute("stroke-width", `${STROKE}px`);
     arc.setAttribute("stroke-linecap", "round");
-    arc.setAttribute("stroke-dasharray", CIRC);
-    arc.setAttribute("stroke-dashoffset", offset);
+    arc.setAttribute("stroke-dasharray", `${CIRC}px`);
+    arc.setAttribute("stroke-dashoffset", `${offset}px`);
     arc.setAttribute("transform", `rotate(-90 ${SIZE / 2} ${SIZE / 2})`);
     arc.style.transition = "stroke-dashoffset 0.6s ease";
 

@@ -1,6 +1,6 @@
 import Slice from "/Slice/Slice.js";
 
-await slice.build("ApiServices");
+await slice.build("ApiServices", { sliceId: "Api-Services" });
 
 const modal = await slice.build("Modal");
 document.body.appendChild(modal);

@@ -26,9 +26,10 @@ export default class Modal extends HTMLElement {
     contentTarget.innerHTML = "";
 
     // Renderizar el formulario correspondiente
+    console.log("Abriendo modal con payload:", payload?.data?.id);
     if (payload.type === "goal") {
       contentTarget.appendChild(
-        this._renderGoalModal(payload.data, payload.index),
+        this._renderGoalModal(payload.data, payload.data?.id ?? null),
       );
     } else if (payload.type === "transaction") {
       contentTarget.appendChild(
@@ -67,6 +68,8 @@ export default class Modal extends HTMLElement {
 
   _renderGoalModal(goal = null, index = null) {
     const wrapper = document.createElement("div");
+    console.log("Datos de modal", goal, "index:", index);
+
     wrapper.innerHTML = `
       <form class="tg-form">
         <div class="tg-modal-header">
@@ -77,29 +80,24 @@ export default class Modal extends HTMLElement {
         <div class="tg-form-body">
           <div class="tg-field">
             <label>Título</label>
-            <input name="title" placeholder="Ej. Fondo de emergencia" required />
-          </div>
-
-          <div class="tg-field">
-            <label>Categoría</label>
-            <input name="category" placeholder="Ej. Ahorro" required />
+            <input name="title" placeholder=${goal?.titulo || "Ej. Fondo de emergencia"} required />
           </div>
 
           <div class="tg-row">
             <div class="tg-field">
               <label>Monto Actual</label>
-              <input name="current" type="number" min="0" placeholder="0" required />
+              <input name="current" type="number" min="0" placeholder=${goal?.monto_actual || "0"} required />
             </div>
             <div class="tg-field">
               <label>Meta Total</label>
-              <input name="total" type="number" min="0" placeholder="0" required />
+              <input name="total" type="number" min="0" placeholder=${goal?.monto_objetivo || "0"} required />
             </div>
           </div>
 
           <div class="tg-field">
             <label>Fecha Límite</label>
-            <input name="targetDate" type="date" required />
-          </div>
+            <input name="targetDate" type="date" ${goal?.fecha_limite ? `value="${goal.fecha_limite}"` : ""} required />
+              </div>
         </div>
 
         <div class="tg-modal-actions">
@@ -112,11 +110,11 @@ export default class Modal extends HTMLElement {
     const form = wrapper.querySelector("form");
 
     if (goal) {
-      form.title.value = goal.title || "";
-      form.category.value = goal.category || "";
-      form.current.value = goal.current || 0;
-      form.total.value = goal.total || 0;
-      form.targetDate.value = goal.targetDate || "";
+      // Usar form.elements evita el conflicto con la propiedad nativa 'title'
+      form.elements["title"].value = goal.titulo || "";
+      form.elements["current"].value = goal.monto_actual || 0;
+      form.elements["total"].value = goal.monto_objetivo || 0;
+      form.elements["targetDate"].value = goal.fecha_limite || "";
     }
 
     wrapper.querySelector(".tg-modal-close").onclick = () =>
@@ -128,11 +126,10 @@ export default class Modal extends HTMLElement {
       e.preventDefault();
       slice.events.emit("goal:save", {
         data: {
-          title: form.title.value,
-          category: form.category.value,
-          current: Number(form.current.value),
-          total: Number(form.total.value),
-          targetDate: form.targetDate.value,
+          title: form.elements["title"].value,
+          current: Number(form.elements["current"].value),
+          total: Number(form.elements["total"].value),
+          targetDate: form.elements["targetDate"].value,
         },
         index,
       });
@@ -142,7 +139,7 @@ export default class Modal extends HTMLElement {
     return wrapper;
   }
 
-  _renderTransactionModal(transaction = null) {
+  _renderTransactionModal(transaction = null, index = null) {
     const wrapper = document.createElement("div");
     wrapper.innerHTML = `
       <form class="tg-form">
