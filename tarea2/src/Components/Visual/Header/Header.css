@@ -23,3 +23,134 @@
   gap: 0.75rem;
   margin-left: auto;
 }
+
+/* ESTRUCTURA BASE DEL HEADER */
+.header-container-element {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  background: var(--secondary-background-color, #333333);
+  border-bottom: 1px solid var(--primary-color-shade, #383838);
+}
+
+.header-items {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* WIDGET DEL DROPDOWN */
+.tg-user-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* El gatillo circular con el fondo del color del tema activo */
+.tg-user-avatar-trigger {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--primary-color, #0066ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.tg-user-avatar-trigger:hover {
+  filter: brightness(1.1);
+  transform: scale(1.04);
+}
+
+/* EL MENÚ DESPLEGABLE POPUP */
+.tg-dropdown-menu {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  width: 200px;
+  background: var(--primary-background-color, #282828);
+  border: 1px solid var(--primary-color-shade, #383838);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  /* Animación de entrada oculta */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    visibility 0.2s;
+  z-index: 1000;
+}
+
+/* Clase que activa el dropdown */
+.tg-dropdown-menu--open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* DETALLES INTERNOS DEL DROPDOWN */
+.tg-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px;
+}
+
+.tg-dropdown-avatar-display {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--secondary-color, #63ccfd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tg-dropdown-username {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--font-primary-color, #ffffff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tg-dropdown-divider {
+  border: none;
+  border-top: 1px solid var(--primary-color-shade, #383838);
+  margin: 4px 0;
+}
+
+/* BOTÓN DE SALIR */
+.tg-dropdown-logout-btn {
+  background: transparent;
+  border: 1px solid
+    color-mix(in srgb, var(--danger-color, #ff0000) 30%, transparent);
+  color: var(--danger-color, #ff0000);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.tg-dropdown-logout-btn:hover {
+  background: var(--danger-color, #ff0000);
+  color: #000000; /* Contraste oscuro segun tus variables del root */
+  box-shadow: 0 4px 12px
+    color-mix(in srgb, var(--danger-color) 20%, transparent);
+}

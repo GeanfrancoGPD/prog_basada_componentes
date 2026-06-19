@@ -1,36 +1,25 @@
 export default class Header extends HTMLElement {
   static props = {
-    // Define your component props here
-    // Example:
-    /*
-    "value": { 
-         type: 'string', 
-         default: 'Button', 
-         required: false 
-      },
-    */
-    title: {
-      type: "string",
-      default: "Header",
-      required: false,
-    },
-    items: {
-      type: "array",
-      default: [],
-      required: false,
-    },
+    title: { type: "string", default: "Fintraack", required: false },
   };
 
   constructor(props) {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
+
+    // Nodos principales de la plantilla
     this.$title = this.querySelector(".header-title");
     this.$items = this.querySelector(".header-items");
+
+    // Instanciamos servicios y contextos globales
+    this.services = slice.getComponent("Api-Services");
+    this.auth = slice.context.getState("auth");
   }
 
   async init() {
     await this.render();
+    this._initDropdownListener();
   }
 
   async update() {
@@ -43,38 +32,136 @@ export default class Header extends HTMLElement {
     }
 
     if (!this.$items) return;
+    this.$items.innerHTML = ""; // Limpieza de seguridad
 
-    this.$items.innerHTML = "";
+    // 1. ➕ Componente: Botón "Agregar Transacción" automático
+    const addButton = await slice.build("Button", {
+      value: "Agregar transacción",
+      onClickCallback: async () => {
+        let categories = [];
+        try {
+          // El header obtiene las categorías directo de la API de forma transparente
+          const dashboardData = await this.services.getDashboard();
+          categories = dashboardData?.data?.expensesByCategory || [];
+        } catch (error) {
+          console.error("Error al obtener categorías para el modal:", error);
+        }
 
-    for (const item of this.items || []) {
-      const resolvedItem = await item;
-
-      if (resolvedItem instanceof HTMLElement) {
-        this.$items.appendChild(resolvedItem);
-        continue;
-      }
-
-      const itemElement = document.createElement("div");
-      itemElement.textContent = resolvedItem?.text || "";
-      this.$items.appendChild(itemElement);
-    }
-
-    this._renderButton();
-  }
-
-  async _renderButton() {
-    const buttonTheme = this.querySelector(".button-theme");
-
-    const currentTheme = slice.theme;
-
-    const themeToggleButton = await slice.build("ThemeSwitcher", {
-      label: "Theme",
-      themes: ["Light", "Dark", "Blue"],
+        slice.events.emit("modal:open", {
+          type: "transaction",
+          mode: "create",
+          categories: categories,
+        });
+      },
     });
 
-    if (buttonTheme) {
-      buttonTheme.appendChild(themeToggleButton);
-    }
+    // 2. 🎨 Componente: Selector de Temas
+    const themeToggleButton = await slice.build("ThemeSwitcher", {
+      label: "Theme",
+      themes: ["Light", "Dark", "Blue", "Slice"],
+    });
+
+    // 3. 👤 Componente: Icono de Usuario con Menú Desplegable (Dropdown)
+    const userMenu = await this._buildUserMenu();
+
+    // Inyectamos todo en la barra de controles del header
+    this.$items.appendChild(addButton);
+    this.$items.appendChild(themeToggleButton);
+    this.$items.appendChild(userMenu);
+  }
+
+  async _buildUserMenu() {
+    const userName =
+      this.auth?.user?.nombre || this.auth?.user?.username || "Usuario";
+
+    // Contenedor principal del componente de usuario
+    const wrapper = document.createElement("div");
+    wrapper.className = "tg-user-dropdown-wrapper";
+
+    const trigger = document.createElement("div");
+    trigger.className = "tg-user-avatar-trigger";
+
+    const triggerIcon = await slice.build("SvgIcon", {
+      nombre: "user",
+      size: "22px",
+      color: "var(--primary-background-color)",
+    });
+    trigger.appendChild(triggerIcon);
+
+    // EL MENÚ DESPLEGABLE
+    const dropdownMenu = document.createElement("div");
+    dropdownMenu.className = "tg-dropdown-menu";
+
+    // Encabezado del dropdown
+    const dropdownHeader = document.createElement("div");
+    dropdownHeader.className = "tg-dropdown-header";
+
+    // Contenedor del mini avatar interno
+    const avatarDisplay = document.createElement("div");
+    avatarDisplay.className = "tg-dropdown-avatar-display";
+
+    const headerIcon = await slice.build("SvgIcon", {
+      nombre: "user",
+      size: "24px",
+      color: "var(--primary-background-color)",
+    });
+    avatarDisplay.appendChild(headerIcon);
+
+    // Nombre de usuario
+    const usernameSpan = document.createElement("span");
+    usernameSpan.className = "tg-dropdown-username";
+    usernameSpan.textContent = userName;
+
+    // Armamos el encabezado
+    dropdownHeader.appendChild(avatarDisplay);
+    dropdownHeader.appendChild(usernameSpan);
+
+    // Separador visual
+    const divider = document.createElement("hr");
+    divider.className = "tg-dropdown-divider";
+
+    // Botón de salir
+    const logoutBtn = document.createElement("button");
+    logoutBtn.type = "button";
+    logoutBtn.className = "tg-dropdown-logout-btn";
+    logoutBtn.innerHTML = `<span>Salir de sesión</span>`;
+
+    logoutBtn.onclick = () => {
+      console.log("Cerrando sesión...");
+      if (slice.context && slice.context.setState) {
+        slice.context.setState("auth", { isAuthenticated: false, user: null });
+      }
+      slice.router.navigate("/login");
+    };
+
+    dropdownMenu.appendChild(dropdownHeader);
+    dropdownMenu.appendChild(divider);
+    dropdownMenu.appendChild(logoutBtn);
+
+    wrapper.appendChild(trigger);
+    wrapper.appendChild(dropdownMenu);
+
+    return wrapper;
+  }
+
+  // Manejador de clicks para abrir y cerrar el menú desplegable
+  _initDropdownListener() {
+    this.addEventListener("click", (e) => {
+      const trigger = e.target.closest(".tg-user-avatar-trigger");
+      const activeDropdown = this.querySelector(".tg-dropdown-menu--open");
+
+      // Si clickea el avatar, hace toggle
+      if (trigger) {
+        const dropdown = trigger.nextElementSibling;
+        dropdown.classList.toggle("tg-dropdown-menu--open");
+        return;
+      }
+
+      // Si clickea afuera del menú, lo cierra
+      if (activeDropdown && !e.target.closest(".tg-user-dropdown-wrapper")) {
+        activeDropdown.classList.remove("tg-dropdown-menu--open");
+      }
+    });
   }
 }
 

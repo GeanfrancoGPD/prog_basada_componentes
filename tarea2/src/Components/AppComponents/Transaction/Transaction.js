@@ -2,11 +2,9 @@ export default class Transaction extends HTMLElement {
   static props = {};
 
   static menuItems = [
-    { text: "Dashboard", path: "/" },
+    { text: "Dashboard", path: "/Home" },
     { text: "Transaction", path: "/Transaction" },
-    { text: "Statistics", path: "/Statistics" },
     { text: "Goals", path: "/Goals" },
-    { text: "Settings", path: "/Settings" },
   ];
 
   constructor(props) {
@@ -146,23 +144,13 @@ export default class Transaction extends HTMLElement {
   }
 
   async _buildHeader() {
-    const searchBar = await slice.build("SearchBar", {});
-    const addButton = await slice.build("Button", {
-      value: "Agregar transacción",
-      onClickCallback: () => {
-        slice.events.emit("modal:open", {
-          type: "transaction",
-          mode: "create",
-          categories: this.state.transactionsData?.data?.categories || [],
-        });
-      },
-    });
-    const header = await slice.build("Header", {
-      title: "",
-      items: [searchBar, addButton],
-    });
     const container = this.querySelector(".Header-container");
-    if (container) container.appendChild(header);
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const header = await slice.build("Header", { title: "Transaction" });
+    container.appendChild(header);
   }
 
   async _buildTransactionTable() {

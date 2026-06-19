@@ -1,10 +1,10 @@
 export default class Goals extends HTMLElement {
   static menuItems = [
-    { text: "Dashboard", path: "/" },
+    { text: "Dashboard", path: "/Home" },
     { text: "Transaction", path: "/Transaction" },
-    { text: "Statistics", path: "/Statistics" },
+    // { text: "Statistics", path: "/Statistics" },
     { text: "Goals", path: "/Goals" },
-    { text: "Settings", path: "/Settings" },
+    // { text: "Settings", path: "/Settings" },
   ];
 
   constructor(props) {
@@ -77,16 +77,14 @@ export default class Goals extends HTMLElement {
   }
 
   async _buildHeader() {
-    const searchBar = await slice.build("SearchBar", {});
-    const addButton = await slice.build("Button", {
-      value: "agregar transaction",
-    });
-    const header = await slice.build("Header", {
-      title: "",
-      items: [searchBar, addButton],
-    });
     const container = this.querySelector(".Header-container");
-    if (container) container.appendChild(header);
+    if (!container) return;
+
+    container.innerHTML = ""; // Limpieza
+
+    // Solo lo llamas, ¡y él hace toda la magia solo!
+    const header = await slice.build("Header", { title: "Goals" });
+    container.appendChild(header);
   }
 
   async _buildButton() {

@@ -54,3 +54,18 @@ slice-goals {
 .goals-list {
   width: 100%;
 }
+
+h1 {
+  color: var(--secondary-color, #63ccfd);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.01em;
+}
+
+/* El párrafo usa tu gris medio para que sea legible pero sutil */
+p {
+  color: var(--medium-color, #d1d3da);
+  font-size: 14px;
+  margin: 0;
+}

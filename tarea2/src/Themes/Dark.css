@@ -40,3 +40,190 @@
   /* Disabled color */
   --disabled-color: #7f7f7f;
 }
+
+:host {
+  position: relative;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
+
+/* BACKDROP (Fondo difuminado que oscurece la pantalla) */
+.tg-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Un oscurecido sutil para que los grises del fondo no compitan con el modal */
+  background: rgba(15, 15, 15, 0.7);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0.3s;
+  z-index: 9999;
+}
+
+.tg-modal-backdrop--open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* CONTENEDOR DEL MODAL */
+.tg-modal {
+  width: 460px;
+  max-width: 92vw;
+  /* Usamos tu fondo secundario (#333) para que el modal "eleve" visualmente */
+  background: var(--secondary-background-color, #333333);
+  color: var(--font-primary-color, #ffffff);
+  border-radius: 16px;
+  /* Tu variable shade (#383838) es perfecta para un borde fino y limpio */
+  border: 1px solid var(--primary-color-shade, #383838);
+  box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.5);
+  transform: scale(0.95) translateY(10px);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+.tg-modal-backdrop--open .tg-modal {
+  transform: scale(1) translateY(0);
+}
+
+/* HEADER */
+.tg-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--primary-color-shade, #383838);
+}
+
+.tg-modal-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* BOTÓN CERRAR (X) */
+.tg-modal-close {
+  border: none;
+  background: color-mix(in srgb, var(--font-primary-color) 8%, transparent);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--font-primary-color, #ffffff);
+  opacity: 0.6;
+  transition: all 0.2s ease;
+}
+
+.tg-modal-close:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--font-primary-color) 15%, transparent);
+}
+
+/* CUERPO DEL FORMULARIO */
+.tg-form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+
+.tg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tg-field label {
+  font-size: 13px;
+  font-weight: 500;
+  /* Tu gris medio (#92949c) le da la opacidad justa a las etiquetas */
+  color: var(--medium-color, #92949c);
+}
+
+/* INPUTS Y SELECTS */
+.tg-field input,
+.tg-field select {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 10px;
+  box-sizing: border-box;
+  /* Al usar el fondo principal (#282828), logramos el efecto "hundido" en el formulario */
+  background: var(--primary-background-color, #282828);
+  color: var(--font-primary-color, #ffffff);
+  border: 1px solid var(--primary-color-shade, #383838);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.tg-field input:focus,
+.tg-field select:focus {
+  /* Destello azul eléctrico enfocado */
+  border-color: var(--primary-color, #0066ff);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--primary-color) 20%, transparent);
+}
+
+.tg-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* FOOTER DE ACCIONES */
+.tg-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--primary-color-shade, #383838);
+  background: var(--primary-background-color, #282828);
+}
+
+/* BOTONES */
+.tg-btn {
+  border: none;
+  cursor: pointer;
+  padding: 11px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.tg-btn--cancel {
+  background: transparent;
+  color: var(--font-primary-color, #ffffff);
+  border: 1px solid var(--primary-color-shade, #383838);
+}
+
+.tg-btn--cancel:hover {
+  background: color-mix(in srgb, var(--font-primary-color) 6%, transparent);
+}
+
+.tg-btn--save {
+  /* Fondo azul de tu variable primary */
+  background: var(--primary-color, #0066ff);
+  /* Texto blanco puro para legibilidad óptima sobre el azul */
+  color: var(--font-primary-color, #ffffff);
+}
+
+.tg-btn--save:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 4px 15px
+    color-mix(in srgb, var(--primary-color) 35%, transparent);
+}
