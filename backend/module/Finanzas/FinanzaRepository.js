@@ -57,4 +57,76 @@ export default class FinanzaRepository {
       newPasswordHash,
     });
   }
+
+  //Goals
+
+  async createGoal(
+    usuario_id,
+    titulo,
+    monto_objetivo,
+    monto_actual,
+    fecha_limite,
+    estado,
+  ) {
+    return await db.excecuteNameQuery("createGoal", {
+      usuario_id,
+      titulo,
+      monto_objetivo,
+      monto_actual,
+      fecha_limite,
+      estado,
+    });
+  }
+
+  async updateGoal(
+    id,
+    titulo,
+    monto_objetivo,
+    monto_actual,
+    fecha_limite,
+    estado,
+  ) {
+    return await db.excecuteNameQuery("updateGoal", {
+      id,
+      titulo,
+      monto_objetivo,
+      monto_actual,
+      fecha_limite,
+      estado,
+    });
+  }
+
+  async deleteGoal(id) {
+    return await db.excecuteNameQuery("deleteGoal", { id });
+  }
+
+  // Transactions
+
+  async createTransaction(usuario_id, monto, tipo, categoria_id, fecha) {
+    return await db.excecuteNameQuery("createTransaction", {
+      usuario_id,
+      monto,
+      tipo,
+      categoria_id,
+      fecha,
+    });
+  }
+
+  async updateTransaction(id, monto, tipo, categoria_id, fecha) {
+    return await db.excecuteNameQuery("updateTransaction", {
+      id,
+      monto,
+      tipo,
+      categoria_id,
+      fecha,
+    });
+  }
+
+  async deleteTransaction(id) {
+    return await db.excecuteNameQuery("deleteTransaction", { id });
+  }
+
+  async getCategories() {
+    return await db.excecuteNameQuery("getCategories", {});
+  }
 }

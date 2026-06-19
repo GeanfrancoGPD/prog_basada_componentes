@@ -251,12 +251,35 @@ export class FinanceBO {
   }
 
   async createGoal(req, res) {
-    const { titulo, monto_objetivo, monto_actual, fecha_limite } = req.body;
-    const usuario_id = req.session?.user?.id;
+    const { titulo, monto_objetivo, monto_actual, fecha_limite, estado } =
+      req.body;
+    const usuario_id = req.params.id || req.session?.user?.id;
+
+    console.log(
+      "createGoal - id:",
+      usuario_id,
+      "titulo:",
+      titulo,
+      "monto_objetivo:",
+      monto_objetivo,
+      "monto_actual:",
+      monto_actual,
+      "fecha_limite:",
+      fecha_limite,
+      "estado:",
+      estado,
+    );
+
     if (!usuario_id)
       return res.status(401).json({ success: false, message: "No autorizado" });
 
-    if (!titulo || !monto_objetivo || !fecha_limite) {
+    if (
+      !titulo ||
+      !monto_objetivo ||
+      !fecha_limite ||
+      !estado ||
+      !monto_actual
+    ) {
       return res.status(400).json({
         success: false,
         message: "Datos incompletos",
@@ -269,6 +292,7 @@ export class FinanceBO {
       monto_objetivo,
       monto_actual || 0,
       fecha_limite,
+      estado || "pendiente",
     );
 
     return res.status(201).json({

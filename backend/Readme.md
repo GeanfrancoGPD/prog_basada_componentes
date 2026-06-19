@@ -304,6 +304,88 @@ Requiere sesión activa.
 
 Obtiene todas las metas financieras del usuario.
 
+**respuesta del servidor**
+
+```json
+_renderGoalModal(goal = null, index = null) {
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = `
+      <form class="tg-form">
+        <div class="tg-modal-header">
+          <h3 class="tg-modal-title">${goal ? "Editar Meta" : "Nueva Meta"}</h3>
+          <button type="button" class="tg-modal-close">&times;</button>
+        </div>
+
+        <div class="tg-form-body">
+          <div class="tg-field">
+            <label>Título</label>
+            <input name="title" placeholder="Ej. Fondo de emergencia" required />
+          </div>
+
+          <div class="tg-field">
+            <label>Categoría</label>
+            <input name="category" placeholder="Ej. Ahorro" required />
+          </div>
+
+          <div class="tg-row">
+            <div class="tg-field">
+              <label>Monto Actual</label>
+              <input name="current" type="number" min="0" placeholder="0" required />
+            </div>
+            <div class="tg-field">
+              <label>Meta Total</label>
+              <input name="total" type="number" min="0" placeholder="0" required />
+            </div>
+          </div>
+
+          <div class="tg-field">
+            <label>Fecha Límite</label>
+            <input name="targetDate" type="date" required />
+          </div>
+        </div>
+
+        <div class="tg-modal-actions">
+          <button type="button" class="tg-btn tg-btn--cancel">Cancelar</button>
+          <button type="submit" class="tg-btn tg-btn--save">Guardar</button>
+        </div>
+      </form>
+    `;
+
+    const form = wrapper.querySelector("form");
+
+    if (goal) {
+      // Usar form.elements evita el conflicto con la propiedad nativa 'title'
+      form.elements["title"].value = goal.title || "";
+      form.elements["category"].value = goal.category || "";
+      form.elements["current"].value = goal.current || 0;
+      form.elements["total"].value = goal.total || 0;
+      form.elements["targetDate"].value = goal.targetDate || "";
+    }
+
+    wrapper.querySelector(".tg-modal-close").onclick = () =>
+      slice.events.emit("modal:close");
+    wrapper.querySelector(".tg-btn--cancel").onclick = () =>
+      slice.events.emit("modal:close");
+
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      slice.events.emit("goal:save", {
+        data: {
+          title: form.elements["title"].value,
+          category: form.elements["category"].value,
+          current: Number(form.elements["current"].value),
+          total: Number(form.elements["total"].value),
+          targetDate: form.elements["targetDate"].value,
+        },
+        index,
+      });
+      slice.events.emit("modal:close");
+    };
+
+    return wrapper;
+  }
+```
+
 ---
 
 ### Crear meta
