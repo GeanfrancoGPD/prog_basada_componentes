@@ -29,38 +29,26 @@ export default class Transaction extends HTMLElement {
     const loggedIn = await this._IsLogin();
     if (!loggedIn) return;
 
-    this.state.transactionsData = await this.services.getTransactions();
-    console.log("Datos reales de Transacciones:", this.state.transactionsData);
-
-    const backendTransactions =
-      this.state.transactionsData?.data?.transactions || [];
-
-    this.originalData = backendTransactions.map((t) => [
-      t.fecha ? t.fecha.slice(0, 10) : "", // "2026-05-23T04:00..." -> "2026-05-23"
-      t.descripcion || "",
-      t.tipo || "gasto",
-      parseFloat(t.monto || 0),
-      t.tipo === "ingreso" ? "Completado" : "Completado", // O el estado que manejes
-      "", // Columna reservada para "Action"
-    ]);
-
-    this.data = [...this.originalData];
-
-    // Eventos
+    await this._loadTransactions();
     this.events = slice.events.bind(this);
-    this.events.subscribe("transaction:save", (transaction) => {
-      this.originalData.unshift([
-        // .unshift añade al principio para que se vea arriba
-        transaction.date,
-        transaction.description,
-        transaction.category,
-        parseFloat(transaction.amount),
-        transaction.status,
-        "",
-      ]);
-      this.data = [...this.originalData];
-      this._buildTransactionTable();
-    });
+
+    // Suscripciones a los eventos CRUD
+    this.events.subscribe(
+      "transaction:create",
+      this._createTransaction.bind(this),
+    );
+    this.events.subscribe(
+      "transaction:update",
+      this._updateTransaction.bind(this),
+    );
+    this.events.subscribe(
+      "transaction:delete",
+      this._deleteTransaction.bind(this),
+    );
+    this.events.subscribe(
+      "transactions:updated",
+      this._refreshTransactions.bind(this),
+    );
 
     await Promise.all([
       this._buildSidebar(),
@@ -69,6 +57,73 @@ export default class Transaction extends HTMLElement {
       this._buildTransactionTable(),
       this._buildTransactionBar(),
     ]);
+  }
+
+  async _refreshTransactions() {
+    console.log("Refrescando transacciones...");
+    await this._loadTransactions();
+
+    await Promise.all([
+      this._buildTransactionTable(),
+      this._buildTransactionBar(),
+      this._buildFilterTable(),
+    ]);
+  }
+
+  async update() {}
+
+  async _loadTransactions() {
+    this.state.transactionsData = await this.services.getTransactions();
+    console.log("Datos reales de Transacciones:", this.state.transactionsData);
+
+    const backendTransactions =
+      this.state.transactionsData?.data?.transactions || [];
+
+    this.originalData = backendTransactions.map((t) => [
+      t.fecha ? t.fecha.slice(0, 10) : "",
+      t.descripcion || "",
+      t.categoria || "",
+      parseFloat(t.monto || 0),
+      t.tipo || t.estado || "",
+      `
+        <select class="action-select tg-select-action" data-id="${t.id}">
+          <option value="" disabled selected>Acciones</option>
+          <option value="edit">Editar</option>
+          <option value="delete">Eliminar</option>
+        </select>
+      `,
+    ]);
+
+    this.data = [...this.originalData];
+  }
+
+  async _createTransaction(transaction) {
+    console.log("Creando transacción:", transaction);
+    try {
+      await this.services.createTransaction(transaction);
+      slice.events.emit("transactions:updated");
+    } catch (error) {
+      console.error("Error al crear:", error);
+    }
+  }
+
+  async _updateTransaction(transaction) {
+    console.log("Actualizando transacción:", transaction);
+    try {
+      await this.services.updateTransaction(transaction.id, transaction);
+      slice.events.emit("transactions:updated");
+    } catch (error) {
+      console.error("Error al actualizar:", error);
+    }
+  }
+
+  async _deleteTransaction(id) {
+    try {
+      await this.services.deleteTransaction(id);
+      slice.events.emit("transactions:updated");
+    } catch (error) {
+      console.error("Error al eliminar:", error);
+    }
   }
 
   async _IsLogin() {
@@ -93,10 +148,12 @@ export default class Transaction extends HTMLElement {
   async _buildHeader() {
     const searchBar = await slice.build("SearchBar", {});
     const addButton = await slice.build("Button", {
-      value: "Agregar transaction",
+      value: "Agregar transacción",
       onClickCallback: () => {
         slice.events.emit("modal:open", {
           type: "transaction",
+          mode: "create",
+          categories: this.state.transactionsData?.data?.categories || [],
         });
       },
     });
@@ -118,33 +175,79 @@ export default class Transaction extends HTMLElement {
       headers: [
         "Fecha",
         "Descripción",
-        "Tipo/Categoría",
+        "Categoría",
         "Cantidad",
         "Estado",
-        "Action",
+        "Acción",
       ],
       rows: this.data,
       pagination: { pageSize: 5 },
       defaultSort: { key: "name", direction: "asc" },
     });
+
     table.appendChild(transactionTable);
+
+    // ¡Importante! Vinculamos los eventos DESPUÉS de renderizar la tabla
+    this._bindTableActions();
+  }
+
+  _bindTableActions() {
+    const selects = this.querySelectorAll(".action-select");
+
+    selects.forEach((select) => {
+      select.addEventListener("change", (e) => {
+        const action = e.target.value;
+        const id = parseInt(e.target.getAttribute("data-id"));
+
+        // Buscamos la transacción completa en nuestra memoria
+        const transaction =
+          this.state.transactionsData?.data?.transactions.find(
+            (t) => t.id === id,
+          );
+
+        if (action === "edit" && transaction) {
+          slice.events.emit("modal:open", {
+            type: "transaction",
+            data: transaction,
+            categories: this.state.transactionsData?.data?.categories || [],
+          });
+        } else if (action === "delete") {
+          const confirmar = confirm(
+            `¿Estás seguro de eliminar "${transaction.descripcion}"?`,
+          );
+          if (confirmar) {
+            slice.events.emit("transaction:delete", id);
+          }
+        }
+
+        // Reseteamos el select para que vuelva a decir "Acciones"
+        e.target.value = "";
+      });
+    });
   }
 
   async _buildTransactionBar() {
     const bar = this.querySelector(".transaction-table-bar");
     if (!bar) return;
 
-    const backendCategories =
-      this.state.transactionsData?.data?.categories || [];
+    const backendTransactions =
+      this.state.transactionsData?.data?.transactions || [];
 
-    const nombresCategorias = backendCategories.map((item) => item.categoria);
-    const montosCategorias = backendCategories.map((item) =>
-      parseFloat(item.total || 0),
-    );
+    // Sumamos los montos basándonos en las transacciones reales
+    const totalesPorCategoria = backendTransactions.reduce((acc, t) => {
+      if (t.tipo === "gasto" || t.estado === "gasto") {
+        const nombreCat = t.categoria || "Sin categoría";
+        acc[nombreCat] = (acc[nombreCat] || 0) + parseFloat(t.monto || 0);
+      }
+      return acc;
+    }, {});
+
+    const nombresCategorias = Object.keys(totalesPorCategoria);
+    const montosCategorias = Object.values(totalesPorCategoria);
 
     const miGraficaDeBarras = await slice.build("Graphics", {
       type: "bar",
-      title: "Distribución de Gastos Mensuales",
+      title: "Distribución de Gastos",
       categories:
         nombresCategorias.length > 0 ? nombresCategorias : ["Sin Datos"],
       series: [
@@ -156,6 +259,7 @@ export default class Transaction extends HTMLElement {
       accentColor: "var(--primary-color)",
     });
 
+    bar.innerHTML = "";
     bar.appendChild(miGraficaDeBarras);
   }
 
@@ -164,8 +268,6 @@ export default class Transaction extends HTMLElement {
     if (!filterContainer) return;
 
     filterContainer.innerHTML = "";
-
-    // CORRECCIÓN: Filtros dinámicos basados en la propiedad 'categories'
     const backendCategories =
       this.state.transactionsData?.data?.categories || [];
     const categoryOptions = [
@@ -182,7 +284,7 @@ export default class Transaction extends HTMLElement {
       options: [
         { label: "Sin filtro", value: "" },
         { label: "Mayo 2026", value: "2026-05" },
-        { label: "Abril 2026", value: "2026-04" },
+        { label: "Junio 2026", value: "2026-06" },
       ],
       onOptionSelect: () => this._applyFilters(),
     });
@@ -199,8 +301,8 @@ export default class Transaction extends HTMLElement {
       visibleProp: "label",
       options: [
         { label: "Sin filtro", value: "" },
-        { label: "gasto", value: "gasto" },
-        { label: "ingreso", value: "ingreso" },
+        { label: "Gasto", value: "gasto" },
+        { label: "Ingreso", value: "ingreso" },
       ],
       onOptionSelect: () => this._applyFilters(),
     });
@@ -223,11 +325,9 @@ export default class Transaction extends HTMLElement {
 
     this.data = this.originalData.filter((transaction) => {
       const matchDate = !date || transaction[0].startsWith(date);
-      // Ajustamos los índices del filtro al nuevo arreglo:
-      // transaction[2] es tipo/categoria y transaction[4] es estado/tipo de flujo
-      const matchCategory = !category || transaction[2] === category;
+      const matchCategory = !category || transaction[2] === category; // index 2 = Categoría
       const matchStatus =
-        !status || transaction[4].toLowerCase() === status.toLowerCase();
+        !status || transaction[4].toLowerCase() === status.toLowerCase(); // index 4 = Estado/Tipo
 
       return matchDate && matchCategory && matchStatus;
     });
