@@ -31,6 +31,10 @@ export default class FinanzaRepository {
     return await db.excecuteNameQuery("getExpensesByCategory", { usuario_id });
   }
 
+  async getAllCategories() {
+    return await db.excecuteNameQuery("getAllCategories", {});
+  }
+
   async getIncomeVsExpenses(usuario_id) {
     return await db.excecuteNameQuery("getIncomeVsExpenses", { usuario_id });
   }
@@ -102,21 +106,29 @@ export default class FinanzaRepository {
 
   // Transactions
 
-  async createTransaction(usuario_id, monto, tipo, categoria_id, fecha) {
+  async createTransaction(
+    usuario_id,
+    monto,
+    tipo,
+    descripcion,
+    categoria_id,
+    fecha,
+  ) {
     return await db.excecuteNameQuery("createTransaction", {
       usuario_id,
-      monto,
-      tipo,
       categoria_id,
+      tipo,
+      monto,
+      descripcion,
       fecha,
     });
   }
-
-  async updateTransaction(id, monto, tipo, categoria_id, fecha) {
+  async updateTransaction(id, monto, tipo, descripcion, categoria_id, fecha) {
     return await db.excecuteNameQuery("updateTransaction", {
       id,
       monto,
       tipo,
+      descripcion,
       categoria_id,
       fecha,
     });

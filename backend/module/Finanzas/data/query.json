@@ -196,5 +196,36 @@
       "newPasswordHash": "string"
     },
     "orderArray": ["usuario_id", "newPasswordHash"]
+  },
+  "getAllCategories": {
+    "query": "SELECT id, nombre AS categoria FROM categorias ORDER BY nombre ASC",
+    "structure_params": {},
+    "orderArray": []
+  },
+  "updateTransaction": {
+    "query": "UPDATE transacciones SET monto = $2, tipo = $3, descripcion = $4, categoria_id = $5, fecha = $6 WHERE id = $1",
+    "structure_params": {
+      "id": "number",
+      "monto": "number",
+      "tipo": "string",
+      "descripcion": "string",
+      "categoria_id": "number",
+      "fecha": "string"
+    },
+    "orderArray": [
+      "id",
+      "monto",
+      "tipo",
+      "descripcion",
+      "categoria_id",
+      "fecha"
+    ]
+  },
+  "deleteTransaction": {
+    "query": "DELETE FROM transacciones WHERE id = $1",
+    "structure_params": {
+      "id": "number"
+    },
+    "orderArray": ["id"]
   }
 }

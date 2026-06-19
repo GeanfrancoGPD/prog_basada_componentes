@@ -156,6 +156,19 @@ export class FinanceBO {
     });
   }
 
+  async getCategories(req, res) {
+    const usuario_id = req.session?.user?.id;
+    if (!usuario_id)
+      return res.status(401).json({ success: false, message: "No autorizado" });
+
+    const categories = await this.repository.getAllCategories();
+
+    return res.status(200).json({
+      success: true,
+      data: { categories },
+    });
+  }
+
   // ==========================
   // TRANSACTIONS
   // ==========================
@@ -167,7 +180,7 @@ export class FinanceBO {
 
     const transactions =
       await this.repository.getTransactionsByUser(usuario_id);
-    const categories = await this.repository.getExpensesByCategory(usuario_id);
+    const categories = await this.repository.getAllCategories();
 
     return res.status(200).json({
       success: true,
@@ -188,12 +201,13 @@ export class FinanceBO {
       });
     }
 
+    // ¡Orden corregido para que coincida con el Repositorio!
     await this.repository.createTransaction(
       usuario_id,
-      tipo,
       monto,
-      categoria_id,
+      tipo,
       descripcion,
+      categoria_id,
       fecha,
     );
 
@@ -207,12 +221,20 @@ export class FinanceBO {
     const { id } = req.params;
     const { tipo, monto, categoria_id, descripcion, fecha } = req.body;
 
+    // Validación de seguridad para que no lleguen undefined a la DB
+    if (!tipo || !monto || !categoria_id || !descripcion || !fecha) {
+      return res.status(400).json({
+        success: false,
+        message: "Todos los campos son requeridos",
+      });
+    }
+
     await this.repository.updateTransaction(
       id,
-      tipo,
       monto,
-      categoria_id,
+      tipo,
       descripcion,
+      categoria_id,
       fecha,
     );
 
