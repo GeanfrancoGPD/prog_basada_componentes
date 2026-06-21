@@ -34,17 +34,15 @@ export default class Header extends HTMLElement {
     if (!this.$items) return;
     this.$items.innerHTML = ""; // Limpieza de seguridad
 
-    // 1. ➕ Componente: Botón "Agregar Transacción" automático
     const addButton = await slice.build("Button", {
       value: "Agregar transacción",
       onClickCallback: async () => {
         let categories = [];
         try {
-          // El header obtiene las categorías directo de la API de forma transparente
-          const dashboardData = await this.services.getDashboard();
-          categories = dashboardData?.data?.expensesByCategory || [];
+          const response = await this.services.getTransactions();
+          categories = response?.data?.categories || [];
         } catch (error) {
-          console.error("Error al obtener categorías para el modal:", error);
+          console.error("Error al obtener categorías en el Header:", error);
         }
 
         slice.events.emit("modal:open", {
@@ -55,13 +53,11 @@ export default class Header extends HTMLElement {
       },
     });
 
-    // 2. 🎨 Componente: Selector de Temas
     const themeToggleButton = await slice.build("ThemeSwitcher", {
       label: "Theme",
       themes: ["Light", "Dark", "Blue", "Slice"],
     });
 
-    // 3. 👤 Componente: Icono de Usuario con Menú Desplegable (Dropdown)
     const userMenu = await this._buildUserMenu();
 
     // Inyectamos todo en la barra de controles del header
@@ -81,6 +77,7 @@ export default class Header extends HTMLElement {
     const trigger = document.createElement("div");
     trigger.className = "tg-user-avatar-trigger";
 
+    // Inyección correcta usando slice.build
     const triggerIcon = await slice.build("SvgIcon", {
       nombre: "user",
       size: "22px",
@@ -100,6 +97,7 @@ export default class Header extends HTMLElement {
     const avatarDisplay = document.createElement("div");
     avatarDisplay.className = "tg-dropdown-avatar-display";
 
+    // Inyección correcta usando slice.build
     const headerIcon = await slice.build("SvgIcon", {
       nombre: "user",
       size: "24px",

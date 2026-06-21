@@ -175,7 +175,6 @@ export default class Transaction extends HTMLElement {
 
     table.appendChild(transactionTable);
 
-    // ¡Importante! Vinculamos los eventos DESPUÉS de renderizar la tabla
     this._bindTableActions();
   }
 

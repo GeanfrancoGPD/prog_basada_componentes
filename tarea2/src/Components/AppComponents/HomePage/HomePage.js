@@ -17,19 +17,15 @@ export default class HomePage extends HTMLElement {
     const loggedIn = await this._IsLogin();
     if (!loggedIn) return;
 
-    // 1. Vinculamos el bus de eventos global de Slice
     this.events = slice.events.bind(this);
 
-    // 2. 🎧 Nos suscribimos al evento de transacciones para actualizar los paneles en tiempo real
     this.events.subscribe(
       "transactions:updated",
       this._refreshDashboard.bind(this),
     );
 
-    // 3. Cargamos los datos iniciales por primera vez
     await this._loadDashboardData();
 
-    // 4. Pintamos toda la interfaz inicial
     await Promise.all([
       this._buildSidebar(),
       this._buildHeader(),
@@ -46,7 +42,6 @@ export default class HomePage extends HTMLElement {
 
     container.innerHTML = ""; // Limpieza
 
-    // Solo lo llamas, ¡y él hace toda la magia solo!
     const header = await slice.build("Header", { title: "Dashboard" });
     container.appendChild(header);
   }
